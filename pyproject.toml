@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "omnicontext"
+version = "0.1.0"
+description = "Git branch context manager - install post-checkout hooks to sync context across branches"
+readme = "README.md"
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.9", "towncrier>=23", "bump2version>=1"]
+
+[project.scripts]
+omnicontext = "omnicontext.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/omnicontext"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.towncrier]
+directory = ".changelog"
+filename = "CHANGELOG.md"
+title_format = "## {version} ({project_date})"
+
+[[tool.towncrier.type]]
+directory = "feature"
+name = "Features"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "bugfix"
+name = "Bug Fixes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "misc"
+name = "Misc"
+showcontent = true

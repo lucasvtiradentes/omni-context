@@ -1,0 +1,9 @@
+name: Push to main
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: ./.github/workflows/callable-ci.yml
