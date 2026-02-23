@@ -11,6 +11,7 @@ from omnicontext.sync import (
     get_branch_dir,
     list_branches,
     sanitize_branch_name,
+    sync_branch,
     update_symlink,
 )
 
@@ -95,3 +96,55 @@ def test_list_branches(workspace):
     assert "main" in branches
     assert "feature-login" in branches
     assert len(branches) == 2
+
+
+@pytest.fixture
+def workspace_no_template():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        git_dir = os.path.join(tmpdir, ".git")
+        os.makedirs(git_dir)
+
+        config_dir = get_config_dir(tmpdir)
+        branches_dir = get_branches_dir(tmpdir)
+
+        os.makedirs(config_dir)
+        os.makedirs(branches_dir)
+
+        config = Config()
+        config.save(tmpdir)
+
+        yield tmpdir
+
+
+def test_create_branch_context_no_template(workspace_no_template):
+    result = create_branch_context(workspace_no_template, "main")
+    assert result == "created_empty"
+
+    branch_dir = get_branch_dir(workspace_no_template, "main")
+    assert os.path.exists(branch_dir)
+    assert os.listdir(branch_dir) == []
+
+
+def test_update_symlink_error_not_symlink(workspace):
+    config = Config.load(workspace)
+    create_branch_context(workspace, "main")
+
+    symlink_path = os.path.join(workspace, config.symlink)
+    with open(symlink_path, "w") as f:
+        f.write("regular file")
+
+    result = update_symlink(workspace, "main", config)
+    assert result == "error_not_symlink"
+
+
+def test_sync_branch(workspace):
+    result = sync_branch(workspace, "feature/test")
+
+    assert result["branch"] == "feature/test"
+    assert "feature-test" in result["branch_dir"]
+    assert result["create_result"] == "created_from_template"
+    assert result["symlink_result"] == "updated"
+    assert result["symlink_path"] == ".branch-context"
+
+    symlink_path = os.path.join(workspace, ".branch-context")
+    assert os.path.islink(symlink_path)
