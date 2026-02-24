@@ -13,7 +13,6 @@ from omnicontext.sync import (
     get_branch_dir,
     get_branch_rel_path,
     list_branches,
-    play_sound,
     sync_branch,
     update_symlink,
 )
@@ -199,11 +198,3 @@ def test_multiple_branch_switches(workspace):
         for branch in branches:
             sync_branch(workspace, branch)
             assert normalize_path(os.readlink(symlink_path)) == get_branch_rel_path(branch)
-
-
-def test_play_sound_no_file():
-    play_sound(None)
-
-
-def test_play_sound_missing_file():
-    play_sound("/nonexistent/path/sound.wav")
