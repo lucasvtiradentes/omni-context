@@ -31,7 +31,6 @@ def _get_changed_files_defaults() -> dict:
 class ChangedFilesConfig:
     enabled: bool = field(default_factory=lambda: _get_changed_files_defaults()["enabled"])
     base_branch: str = field(default_factory=lambda: _get_changed_files_defaults()["base_branch"])
-    show_stats: bool = field(default_factory=lambda: _get_changed_files_defaults()["show_stats"])
 
 
 @dataclass
@@ -77,7 +76,6 @@ class Config:
         changed_files_config = ChangedFilesConfig(
             enabled=changed_files_data.get("enabled", cf_defaults["enabled"]),
             base_branch=changed_files_data.get("base_branch", cf_defaults["base_branch"]),
-            show_stats=changed_files_data.get("show_stats", cf_defaults["show_stats"]),
         )
 
         template_rules = [
@@ -107,7 +105,6 @@ class Config:
             "changed_files": {
                 "enabled": self.changed_files.enabled,
                 "base_branch": self.changed_files.base_branch,
-                "show_stats": self.changed_files.show_stats,
             },
         }
 

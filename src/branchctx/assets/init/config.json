@@ -10,7 +10,6 @@
   },
   "changed_files": {
     "enabled": true,
-    "base_branch": "origin/main",
-    "show_stats": true
+    "base_branch": "origin/main"
   }
 }

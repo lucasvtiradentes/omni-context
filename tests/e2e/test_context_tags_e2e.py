@@ -63,7 +63,6 @@ def test_update_tags_on_feature_branch(git_repo):
         workspace=git_repo,
         context_dir=context_dir,
         base_branch="main",
-        show_stats=True,
     )
 
     assert len(updates) == 2
@@ -86,7 +85,6 @@ def test_update_tags_shows_sync_message_on_main(git_repo):
         workspace=git_repo,
         context_dir=context_dir,
         base_branch="main",
-        show_stats=True,
     )
 
     assert len(updates) == 2
@@ -118,7 +116,6 @@ def test_update_tags_multiple_commits(git_repo):
         workspace=git_repo,
         context_dir=context_dir,
         base_branch="main",
-        show_stats=True,
     )
 
     context_file = os.path.join(context_dir, "context.md")
@@ -130,11 +127,11 @@ def test_update_tags_multiple_commits(git_repo):
     assert "feat: add file 2" in content
 
 
-def test_update_tags_without_stats(git_repo):
+def test_update_tags_shows_stats(git_repo):
     sync_branch(git_repo, "main")
 
-    git_checkout(git_repo, "feature/nostats", create=True)
-    sync_branch(git_repo, "feature/nostats")
+    git_checkout(git_repo, "feature/stats", create=True)
+    sync_branch(git_repo, "feature/stats")
 
     test_file = os.path.join(git_repo, "test.py")
     with open(test_file, "w") as f:
@@ -150,7 +147,6 @@ def test_update_tags_without_stats(git_repo):
         workspace=git_repo,
         context_dir=context_dir,
         base_branch="main",
-        show_stats=False,
     )
 
     context_file = os.path.join(context_dir, "context.md")
@@ -158,7 +154,8 @@ def test_update_tags_without_stats(git_repo):
         content = f.read()
 
     assert "test.py" in content
-    assert "+" not in content or "A\t" in content
+    assert "(+" in content
+    assert "-" in content
 
 
 def test_no_tags_in_file_skips_silently(git_repo):
@@ -175,7 +172,6 @@ def test_no_tags_in_file_skips_silently(git_repo):
         workspace=git_repo,
         context_dir=context_dir,
         base_branch="main",
-        show_stats=True,
     )
 
     assert len(updates) == 0

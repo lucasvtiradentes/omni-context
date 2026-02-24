@@ -34,29 +34,61 @@ def git_commits_since_base(path: str, base_branch: str) -> str | None:
         return None
 
 
-def git_changed_files(path: str, base_branch: str, show_stats: bool = True) -> str | None:
+def git_changed_files(path: str, base_branch: str) -> str | None:
     try:
-        if show_stats:
-            result = subprocess.run(
-                ["git", "diff", "--stat", f"{base_branch}...HEAD"],
-                cwd=path,
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            lines = result.stdout.strip().split("\n")
-            if lines and lines[-1].strip().startswith(("changed", " ")):
-                lines = lines[:-1]
-            return "\n".join(lines).strip()
-        else:
-            result = subprocess.run(
-                ["git", "diff", "--name-status", f"{base_branch}...HEAD"],
-                cwd=path,
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            return result.stdout.strip()
+        status_result = subprocess.run(
+            ["git", "diff", "--name-status", f"{base_branch}...HEAD"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        numstat_result = subprocess.run(
+            ["git", "diff", "--numstat", f"{base_branch}...HEAD"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        status_lines = status_result.stdout.strip().split("\n")
+        numstat_lines = numstat_result.stdout.strip().split("\n")
+
+        if not status_lines or status_lines == [""]:
+            return None
+
+        file_stats: dict[str, tuple[str, str]] = {}
+        for line in numstat_lines:
+            if not line:
+                continue
+            parts = line.split("\t")
+            if len(parts) >= 3:
+                added, removed, filepath = parts[0], parts[1], parts[2]
+                file_stats[filepath] = (added, removed)
+
+        files: list[tuple[str, str, str, str]] = []
+        for line in status_lines:
+            if not line:
+                continue
+            parts = line.split("\t")
+            if len(parts) >= 2:
+                status = parts[0][0]
+                filepath = parts[-1]
+                added, removed = file_stats.get(filepath, ("0", "0"))
+                files.append((status, filepath, added, removed))
+
+        if not files:
+            return None
+
+        max_path_len = max(len(f[1]) for f in files)
+
+        result_lines = []
+        for status, filepath, added, removed in files:
+            padding = " " * (max_path_len - len(filepath))
+            result_lines.append(f"{status}  {filepath}{padding}  (+{added} -{removed})")
+
+        return "\n".join(result_lines)
     except subprocess.CalledProcessError:
         return None
 
@@ -92,12 +124,11 @@ def update_context_tags(
     workspace: str,
     context_dir: str,
     base_branch: str,
-    show_stats: bool = True,
 ) -> list[TagUpdate]:
     updates: list[TagUpdate] = []
 
     commits_content = git_commits_since_base(workspace, base_branch)
-    files_content = git_changed_files(workspace, base_branch, show_stats)
+    files_content = git_changed_files(workspace, base_branch)
 
     sync_message = SYNC_MESSAGE_TEMPLATE.format(base_branch=base_branch)
 

@@ -27,7 +27,6 @@ def cmd_on_commit(_args: list[str]) -> int:
         workspace=git_root,
         context_dir=context_dir,
         base_branch=config.changed_files.base_branch,
-        show_stats=config.changed_files.show_stats,
     )
 
     if updates:
