@@ -13,7 +13,7 @@ from omnicontext.sync import get_branch_rel_path, sync_branch
 @pytest.fixture
 def git_repo():
     with tempfile.TemporaryDirectory() as tmpdir:
-        git_init(tmpdir)
+        git_init(tmpdir, "main")
         git_config(tmpdir, "user.email", "test@test.com")
         git_config(tmpdir, "user.name", "Test")
 

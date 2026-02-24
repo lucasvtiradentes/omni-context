@@ -3,8 +3,11 @@ from __future__ import annotations
 import subprocess
 
 
-def git_init(path: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", "init"], cwd=path, capture_output=True, check=True)
+def git_init(path: str, branch: str | None = None) -> subprocess.CompletedProcess:
+    cmd = ["git", "init"]
+    if branch:
+        cmd.extend(["-b", branch])
+    return subprocess.run(cmd, cwd=path, capture_output=True, check=True)
 
 
 def git_config(path: str, key: str, value: str) -> subprocess.CompletedProcess:
