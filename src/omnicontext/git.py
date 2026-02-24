@@ -81,3 +81,17 @@ def git_config_unset(key: str, scope: Literal["global"] | None = None) -> bool:
         return True
     except subprocess.CalledProcessError:
         return False
+
+
+def git_list_branches(path: str) -> list[str]:
+    try:
+        result = subprocess.run(
+            ["git", "branch", "--format=%(refname:short)"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return [b.strip() for b in result.stdout.strip().split("\n") if b.strip()]
+    except subprocess.CalledProcessError:
+        return []

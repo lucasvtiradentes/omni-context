@@ -5,7 +5,7 @@ import os
 from omnicontext.config import config_exists
 from omnicontext.constants import CLI_NAME
 from omnicontext.hooks import get_current_branch, get_git_root
-from omnicontext.sync import get_branch_dir, list_branches
+from omnicontext.sync import get_branch_dir, list_branches, sanitize_branch_name
 
 
 def cmd_branches(_args: list[str]) -> int:
@@ -30,7 +30,7 @@ def cmd_branches(_args: list[str]) -> int:
         branch_dir = get_branch_dir(git_root, b)
         files = os.listdir(branch_dir) if os.path.exists(branch_dir) else []
         files = [f for f in files if not f.startswith(".")]
-        marker = "*" if current and b == current.replace("/", "-") else " "
+        marker = "*" if current and b == sanitize_branch_name(current) else " "
         print(f"  {marker} {b} ({len(files)} files)")
 
     return 0

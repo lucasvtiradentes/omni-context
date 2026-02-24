@@ -10,7 +10,7 @@ from importlib import resources
 from typing import Literal
 
 from omnicontext.config import Config, get_branches_dir, get_template_dir
-from omnicontext.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_SOUND_FILE, ENV_BRANCH, PACKAGE_NAME
+from omnicontext.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_SOUND_FILE, DEFAULT_TEMPLATE, ENV_BRANCH, PACKAGE_NAME
 
 
 def get_default_sound_file() -> str | None:
@@ -57,26 +57,67 @@ def branch_context_exists(workspace: str, branch: str) -> bool:
     return os.path.exists(get_branch_dir(workspace, branch))
 
 
-def create_branch_context(workspace: str, branch: str) -> Literal["exists", "created_from_template", "created_empty"]:
+def _resolve_template_dir(workspace: str, branch: str, template: str | None) -> str | None:
+    if template is None:
+        config = Config.load(workspace)
+        template = config.get_template_for_branch(branch)
+
+    template_dir = get_template_dir(workspace, template)
+
+    if not os.path.exists(template_dir):
+        template_dir = get_template_dir(workspace, DEFAULT_TEMPLATE)
+
+    if not os.path.exists(template_dir):
+        return None
+
+    return template_dir
+
+
+def _copy_template_to_branch(template_dir: str, branch_dir: str):
+    for item in os.listdir(template_dir):
+        src = os.path.join(template_dir, item)
+        dst = os.path.join(branch_dir, item)
+        if os.path.isdir(src):
+            shutil.copytree(src, dst)
+        else:
+            shutil.copy2(src, dst)
+
+
+def create_branch_context(
+    workspace: str, branch: str, template: str | None = None
+) -> Literal["exists", "created_from_template", "created_empty"]:
     branch_dir = get_branch_dir(workspace, branch)
-    template_dir = get_template_dir(workspace)
 
     if os.path.exists(branch_dir):
         return "exists"
 
     os.makedirs(branch_dir, exist_ok=True)
 
-    if os.path.exists(template_dir):
-        for item in os.listdir(template_dir):
-            src = os.path.join(template_dir, item)
-            dst = os.path.join(branch_dir, item)
-            if os.path.isdir(src):
-                shutil.copytree(src, dst)
-            else:
-                shutil.copy2(src, dst)
+    template_dir = _resolve_template_dir(workspace, branch, template)
+
+    if template_dir:
+        _copy_template_to_branch(template_dir, branch_dir)
         return "created_from_template"
 
     return "created_empty"
+
+
+def reset_branch_context(
+    workspace: str, branch: str, template: str | None = None
+) -> Literal["reset", "template_not_found"]:
+    branch_dir = get_branch_dir(workspace, branch)
+    template_dir = _resolve_template_dir(workspace, branch, template)
+
+    if not template_dir:
+        return "template_not_found"
+
+    if os.path.exists(branch_dir):
+        shutil.rmtree(branch_dir)
+
+    os.makedirs(branch_dir, exist_ok=True)
+    _copy_template_to_branch(template_dir, branch_dir)
+
+    return "reset"
 
 
 def update_symlink(workspace: str, branch: str, config: Config) -> Literal["unchanged", "error_not_symlink", "updated"]:

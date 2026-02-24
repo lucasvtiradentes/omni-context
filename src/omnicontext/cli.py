@@ -3,8 +3,10 @@ from importlib.metadata import version as pkg_version
 
 from omnicontext.commands import (
     cmd_branches,
+    cmd_doctor,
     cmd_init,
     cmd_on_checkout,
+    cmd_reset,
     cmd_status,
     cmd_sync,
     cmd_uninstall,
@@ -21,6 +23,8 @@ Commands:
   sync                 Sync context for current branch
   branches             List all branch contexts
   status               Show status
+  reset [template]     Reset context to template
+  doctor               Run diagnostics
 
 Options:
   --help, -h           Show this help
@@ -30,6 +34,9 @@ Examples:
   {CLI_NAME} init                             # initialize + install hook
   {CLI_NAME} sync                             # sync current branch
   {CLI_NAME} branches                         # list contexts
+  {CLI_NAME} reset                            # reset to auto-detected template
+  {CLI_NAME} reset feature                    # reset to feature template
+  {CLI_NAME} doctor                           # run diagnostics
 
 Exit codes:
   0 - success
@@ -57,6 +64,8 @@ def main():
         "branches": cmd_branches,
         "status": cmd_status,
         "on-checkout": cmd_on_checkout,
+        "reset": cmd_reset,
+        "doctor": cmd_doctor,
     }
 
     if cmd in commands:

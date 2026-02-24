@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from omnicontext.config import Config, config_exists
+from omnicontext.config import Config, config_exists, list_templates
 from omnicontext.git import git_config_get
 from omnicontext.hooks import get_current_branch, get_git_root, is_hook_installed
 from omnicontext.sync import list_branches
@@ -28,6 +28,9 @@ def cmd_status(_args: list[str]) -> int:
         symlink_path = os.path.join(git_root, config.symlink)
         symlink_exists = os.path.islink(symlink_path)
         print(f"Symlink:     {config.symlink} ({'active' if symlink_exists else 'not set'})")
+
+        templates = list_templates(git_root)
+        print(f"Templates:   {', '.join(templates) if templates else 'none'}")
 
         branches = list_branches(git_root)
         print(f"Contexts:    {len(branches)} branches")

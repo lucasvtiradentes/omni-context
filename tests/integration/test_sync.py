@@ -3,8 +3,8 @@ import tempfile
 
 import pytest
 
-from omnicontext.assets import get_template_context
-from omnicontext.config import Config, get_branches_dir, get_config_dir, get_template_dir
+from omnicontext.assets import copy_init_templates
+from omnicontext.config import Config, TemplateRule, get_branches_dir, get_config_dir, get_templates_dir
 from omnicontext.constants import DEFAULT_SYMLINK, GIT_DIR
 from omnicontext.sync import (
     branch_context_exists,
@@ -12,9 +12,11 @@ from omnicontext.sync import (
     get_branch_dir,
     get_branch_rel_path,
     list_branches,
+    reset_branch_context,
     sync_branch,
     update_symlink,
 )
+from pathlib import Path
 from tests.utils import normalize_path
 
 
@@ -25,18 +27,16 @@ def workspace():
         os.makedirs(git_dir)
 
         config_dir = get_config_dir(tmpdir)
-        template_dir = get_template_dir(tmpdir)
+        templates_dir = get_templates_dir(tmpdir)
         branches_dir = get_branches_dir(tmpdir)
 
         os.makedirs(config_dir)
-        os.makedirs(template_dir)
         os.makedirs(branches_dir)
+
+        copy_init_templates(Path(templates_dir))
 
         config = Config()
         config.save(tmpdir)
-
-        with open(os.path.join(template_dir, "context.md"), "w") as f:
-            f.write(get_template_context())
 
         yield tmpdir
 
@@ -198,3 +198,46 @@ def test_multiple_branch_switches(workspace):
         for branch in branches:
             sync_branch(workspace, branch)
             assert normalize_path(os.readlink(symlink_path)) == get_branch_rel_path(branch)
+
+
+def test_create_branch_context_with_template_rules(workspace):
+    config = Config(
+        template_rules=[TemplateRule(prefix="feature/", template="feature")]
+    )
+    config.save(workspace)
+
+    result = create_branch_context(workspace, "feature/login")
+    assert result == "created_from_template"
+
+    branch_dir = get_branch_dir(workspace, "feature/login")
+    with open(os.path.join(branch_dir, "context.md")) as f:
+        content = f.read()
+    assert "Feature Context" in content
+
+
+def test_reset_branch_context(workspace):
+    create_branch_context(workspace, "main")
+    branch_dir = get_branch_dir(workspace, "main")
+
+    with open(os.path.join(branch_dir, "context.md"), "w") as f:
+        f.write("MODIFIED CONTENT")
+
+    result = reset_branch_context(workspace, "main")
+    assert result == "reset"
+
+    with open(os.path.join(branch_dir, "context.md")) as f:
+        content = f.read()
+    assert "Branch Context" in content
+    assert "MODIFIED CONTENT" not in content
+
+
+def test_reset_branch_context_with_specific_template(workspace):
+    create_branch_context(workspace, "main")
+
+    result = reset_branch_context(workspace, "main", "feature")
+    assert result == "reset"
+
+    branch_dir = get_branch_dir(workspace, "main")
+    with open(os.path.join(branch_dir, "context.md")) as f:
+        content = f.read()
+    assert "Feature Context" in content

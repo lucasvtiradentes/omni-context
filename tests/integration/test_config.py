@@ -6,12 +6,13 @@ import pytest
 from omnicontext.config import (
     Config,
     SyncConfig,
+    TemplateRule,
     config_exists,
     get_branches_dir,
     get_config_dir,
     get_template_dir,
 )
-from omnicontext.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_SYMLINK, TEMPLATE_DIR
+from omnicontext.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_SYMLINK, DEFAULT_TEMPLATE, TEMPLATES_DIR
 
 
 @pytest.fixture
@@ -34,7 +35,12 @@ def test_get_branches_dir(workspace):
 
 def test_get_template_dir(workspace):
     result = get_template_dir(workspace)
-    assert result == os.path.join(workspace, CONFIG_DIR, TEMPLATE_DIR)
+    assert result == os.path.join(workspace, CONFIG_DIR, TEMPLATES_DIR, DEFAULT_TEMPLATE)
+
+
+def test_get_template_dir_custom(workspace):
+    result = get_template_dir(workspace, "feature")
+    assert result == os.path.join(workspace, CONFIG_DIR, TEMPLATES_DIR, "feature")
 
 
 def test_config_exists_false(workspace):
@@ -73,3 +79,32 @@ def test_config_load_missing_file(workspace):
     config = Config.load(workspace)
     assert config.symlink == DEFAULT_SYMLINK
     assert config.on_switch is None
+
+
+def test_config_template_rules(workspace):
+    config = Config(
+        template_rules=[
+            TemplateRule(prefix="feature/", template="feature"),
+            TemplateRule(prefix="bugfix/", template="bugfix"),
+        ]
+    )
+    config.save(workspace)
+
+    loaded = Config.load(workspace)
+    assert len(loaded.template_rules) == 2
+    assert loaded.template_rules[0].prefix == "feature/"
+    assert loaded.template_rules[0].template == "feature"
+
+
+def test_config_get_template_for_branch():
+    config = Config(
+        template_rules=[
+            TemplateRule(prefix="feature/", template="feature"),
+            TemplateRule(prefix="bugfix/", template="bugfix"),
+        ]
+    )
+
+    assert config.get_template_for_branch("feature/login") == "feature"
+    assert config.get_template_for_branch("bugfix/123") == "bugfix"
+    assert config.get_template_for_branch("main") == DEFAULT_TEMPLATE
+    assert config.get_template_for_branch("develop") == DEFAULT_TEMPLATE

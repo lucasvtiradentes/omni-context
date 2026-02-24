@@ -9,6 +9,7 @@ DEFAULT_SOUND_FILE = "notification.oga"
 
 CONFIG_DIR = ".omnicontext"
 CONFIG_FILE = "config.json"
-TEMPLATE_DIR = "template"
+TEMPLATES_DIR = "templates"
+DEFAULT_TEMPLATE = "_default"
 BRANCHES_DIR = "branches"
 DEFAULT_SYMLINK = ".branch-context"
