@@ -28,12 +28,12 @@ def play_sound(sound_file: str | None):
     try:
         system = platform.system()
         if system == "Darwin":
-            subprocess.run(["afplay", sound_file], capture_output=True)
+            subprocess.Popen(["afplay", sound_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif system == "Linux":
-            subprocess.run(["paplay", sound_file], capture_output=True)
+            subprocess.Popen(["paplay", sound_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif system == "Windows":
-            cmd = f"(New-Object Media.SoundPlayer '{sound_file}').PlaySync()"
-            subprocess.run(["powershell", "-c", cmd], capture_output=True)
+            cmd = f"(New-Object Media.SoundPlayer '{sound_file}').Play()"
+            subprocess.Popen(["powershell", "-c", cmd], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except FileNotFoundError:
         pass
 
