@@ -18,7 +18,7 @@ git checkout feature/login
  template   existing
         │
         ▼
-   symlink .branch-context -> .bctx/branches/feature-login/
+   symlink _context -> .bctx/branches/feature-login/
 ```
 
 ## Features
@@ -26,7 +26,7 @@ git checkout feature/login
 - branch contexts   - separate folder for each branch
 - auto-sync         - hook syncs on checkout/switch
 - templates         - new branches start from template (per-prefix support)
-- symlink           - `.branch-context/` always points to current branch
+- symlink           - `_context/` always points to current branch
 - sound             - plays sound on branch switch
 - gitignored        - branch data stays local
 - shell completion  - zsh, bash, fish
@@ -62,7 +62,7 @@ cd your-repo
 branch-ctx init      # creates .bctx/ + installs hook
 
 git checkout -b feature/new   # auto-creates context from template
-cat .branch-context/context.md
+cat _context/context.md
 ```
 
 ## Shell Completion
@@ -95,7 +95,7 @@ branch-ctx completion fish | source
 │       └── context.md
 └── .gitignore
 
-.branch-context -> .bctx/branches/main/   # symlink to current
+_context -> .bctx/branches/main/   # symlink to current
 ```
 
 ## Config
@@ -104,7 +104,7 @@ branch-ctx completion fish | source
 
 ```json
 {
-  "symlink": ".branch-context",
+  "symlink": "_context",
   "on_switch": "echo 'switched to {branch}'",
   "sound": true,
   "sound_file": "/path/to/custom.wav",
@@ -117,7 +117,7 @@ branch-ctx completion fish | source
 
 | Key              | Description                                      |
 |------------------|--------------------------------------------------|
-| `symlink`        | symlink name (default: `.branch-context`)        |
+| `symlink`        | symlink name (default: `_context`)        |
 | `on_switch`      | command to run on branch switch                  |
 | `sound`          | play sound on sync (default: `false`)            |
 | `sound_file`     | custom sound file (default: bundled sound)       |

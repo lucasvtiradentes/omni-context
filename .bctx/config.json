@@ -1,5 +1,5 @@
 {
-  "symlink": ".branch-context",
+  "symlink": "_context",
   "on_switch": null,
   "sound": true,
   "sync": {
