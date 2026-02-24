@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import platform
+import re
 import shlex
 import shutil
 import subprocess
@@ -39,7 +40,7 @@ def play_sound(sound_file: str | None):
 
 
 def sanitize_branch_name(branch: str) -> str:
-    return branch.replace("/", "-")
+    return re.sub(r'[/\\:*?"<>|~^@\[\]\s]', "-", branch)
 
 
 def get_branch_dir(workspace: str, branch: str) -> str:
