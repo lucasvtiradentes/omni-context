@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-ASSETS_DIR = Path(__file__).parent / "assets"
+ASSETS_DIR = Path(__file__).parent
 
 
 def get_asset(name: str) -> str:
