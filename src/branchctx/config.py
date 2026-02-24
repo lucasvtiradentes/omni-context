@@ -23,6 +23,16 @@ class TemplateRule:
     template: str
 
 
+def _get_changed_files_defaults() -> dict:
+    return _get_defaults()["changed_files"]
+
+
+@dataclass
+class ChangedFilesConfig:
+    enabled: bool = field(default_factory=lambda: _get_changed_files_defaults()["enabled"])
+    base_branch: str = field(default_factory=lambda: _get_changed_files_defaults()["base_branch"])
+
+
 @dataclass
 class SyncConfig:
     provider: str = field(default_factory=lambda: _get_defaults()["sync"]["provider"])
@@ -38,6 +48,7 @@ class Config:
     sound_file: str | None = None
     template_rules: list[TemplateRule] = field(default_factory=list)
     sync: SyncConfig = field(default_factory=SyncConfig)
+    changed_files: ChangedFilesConfig = field(default_factory=ChangedFilesConfig)
 
     @classmethod
     def load(cls, workspace: str) -> "Config":
@@ -60,6 +71,13 @@ class Config:
             gcp_credentials_file=sync_data.get("gcp", {}).get("credentials_file"),
         )
 
+        changed_files_data = data.get("changed_files", {})
+        cf_defaults = _get_changed_files_defaults()
+        changed_files_config = ChangedFilesConfig(
+            enabled=changed_files_data.get("enabled", cf_defaults["enabled"]),
+            base_branch=changed_files_data.get("base_branch", cf_defaults["base_branch"]),
+        )
+
         template_rules = [
             TemplateRule(prefix=r["prefix"], template=r["template"]) for r in data.get("template_rules", [])
         ]
@@ -71,6 +89,7 @@ class Config:
             sound_file=data.get("sound_file"),
             template_rules=template_rules,
             sync=sync_config,
+            changed_files=changed_files_config,
         )
 
     def save(self, workspace: str):
@@ -82,6 +101,10 @@ class Config:
             "template_rules": [{"prefix": r.prefix, "template": r.template} for r in self.template_rules],
             "sync": {
                 "provider": self.sync.provider,
+            },
+            "changed_files": {
+                "enabled": self.changed_files.enabled,
+                "base_branch": self.changed_files.base_branch,
             },
         }
 

@@ -142,3 +142,9 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 pytest -v
 ```
+
+```bash
+# dev alias (bctxd)
+ln -sf $(pwd)/.venv/bin/bctx ~/.local/bin/bctxd   # install
+rm ~/.local/bin/bctxd                             # remove
+```

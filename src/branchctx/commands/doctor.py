@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from branchctx.config import Config, config_exists, get_templates_dir, list_templates
-from branchctx.constants import CLI_NAME, DEFAULT_TEMPLATE
+from branchctx.constants import CLI_NAME, DEFAULT_TEMPLATE, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.git import git_list_branches
 from branchctx.hooks import get_git_root, is_hook_installed
 from branchctx.sync import list_branches, sanitize_branch_name
@@ -29,11 +29,19 @@ def cmd_doctor(_args: list[str]) -> int:
 
     print("Running diagnostics...\n")
 
-    if is_hook_installed(git_root):
-        print(f"{STATUS_OK} hook installed")
+    if is_hook_installed(git_root, HOOK_POST_CHECKOUT):
+        print(f"{STATUS_OK} {HOOK_POST_CHECKOUT} hook installed")
     else:
-        issues.append("hook not installed")
-        print(f"{STATUS_ERROR} hook not installed")
+        issues.append(f"{HOOK_POST_CHECKOUT} hook not installed")
+        print(f"{STATUS_ERROR} {HOOK_POST_CHECKOUT} hook not installed")
+
+    config = Config.load(git_root)
+    if config.changed_files.enabled:
+        if is_hook_installed(git_root, HOOK_POST_COMMIT):
+            print(f"{STATUS_OK} {HOOK_POST_COMMIT} hook installed")
+        else:
+            warnings.append(f"{HOOK_POST_COMMIT} hook not installed (changed_files enabled)")
+            print(f"{STATUS_WARN} {HOOK_POST_COMMIT} hook not installed")
 
     templates_dir = get_templates_dir(git_root)
     if os.path.exists(templates_dir):
@@ -49,7 +57,6 @@ def cmd_doctor(_args: list[str]) -> int:
         issues.append(f"{DEFAULT_TEMPLATE} template missing")
         print(f"{STATUS_ERROR} {DEFAULT_TEMPLATE} template missing")
 
-    config = Config.load(git_root)
     symlink_path = os.path.join(git_root, config.symlink)
     if os.path.islink(symlink_path):
         target = os.readlink(symlink_path)
@@ -62,7 +69,7 @@ def cmd_doctor(_args: list[str]) -> int:
         issues.append("symlink path exists but is not a symlink")
         print(f"{STATUS_ERROR} {config.symlink} is not a symlink")
     else:
-        warnings.append("symlink not set (run 'branchctx sync')")
+        warnings.append(f"symlink not set (run '{CLI_NAME} sync')")
         print(f"{STATUS_WARN} symlink not set")
 
     git_branches = git_list_branches(git_root)

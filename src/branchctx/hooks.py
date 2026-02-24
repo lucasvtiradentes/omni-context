@@ -6,9 +6,13 @@ import stat
 import sys
 from typing import Literal
 
-from branchctx.assets import get_hook_template
-from branchctx.constants import CLI_NAME, GIT_DIR, HOOK_MARKER, HOOK_NAME
+from branchctx.assets import get_post_checkout_hook_template, get_post_commit_hook_template
+from branchctx.constants import CLI_NAME, GIT_DIR, HOOK_MARKER, HOOK_POST_CHECKOUT
 from branchctx.git import git_current_branch, git_root
+
+HookType = Literal["post-checkout", "post-commit"]
+HookInstallResult = Literal["installed", "already_installed", "hook_exists"]
+HookUninstallResult = Literal["uninstalled", "not_installed", "not_managed"]
 
 
 def get_branchctx_path() -> str:
@@ -29,29 +33,37 @@ def get_branchctx_path() -> str:
     return script_name
 
 
-def get_callback() -> str:
+def get_callback(hook_type: HookType) -> str:
     branchctx_path = get_branchctx_path()
-    return f'"{branchctx_path}" on-checkout'
+    if hook_type == HOOK_POST_CHECKOUT:
+        return f'"{branchctx_path}" on-checkout'
+    return f'"{branchctx_path}" on-commit'
 
 
 def get_git_root(path: str | None = None) -> str | None:
     return git_root(path or os.getcwd())
 
 
-def get_hook_path(git_root: str) -> str:
-    return os.path.join(git_root, GIT_DIR, "hooks", HOOK_NAME)
+def get_hook_path(git_root: str, hook_type: HookType = HOOK_POST_CHECKOUT) -> str:
+    return os.path.join(git_root, GIT_DIR, "hooks", hook_type)
 
 
-def is_hook_installed(git_root: str) -> bool:
-    hook_path = get_hook_path(git_root)
+def is_hook_installed(git_root: str, hook_type: HookType = HOOK_POST_CHECKOUT) -> bool:
+    hook_path = get_hook_path(git_root, hook_type)
     if not os.path.exists(hook_path):
         return False
     with open(hook_path) as f:
         return HOOK_MARKER in f.read()
 
 
-def install_hook(git_root: str) -> Literal["installed", "already_installed", "hook_exists"]:
-    hook_path = get_hook_path(git_root)
+def _get_hook_template(hook_type: HookType) -> str:
+    if hook_type == HOOK_POST_CHECKOUT:
+        return get_post_checkout_hook_template()
+    return get_post_commit_hook_template()
+
+
+def install_hook(git_root: str, hook_type: HookType = HOOK_POST_CHECKOUT) -> HookInstallResult:
+    hook_path = get_hook_path(git_root, hook_type)
     hooks_dir = os.path.dirname(hook_path)
 
     if not os.path.exists(hooks_dir):
@@ -64,7 +76,8 @@ def install_hook(git_root: str) -> Literal["installed", "already_installed", "ho
             return "already_installed"
         return "hook_exists"
 
-    content = get_hook_template().format(marker=HOOK_MARKER, callback=get_callback())
+    template = _get_hook_template(hook_type)
+    content = template.format(marker=HOOK_MARKER, callback=get_callback(hook_type))
 
     with open(hook_path, "w") as f:
         f.write(content)
@@ -75,8 +88,8 @@ def install_hook(git_root: str) -> Literal["installed", "already_installed", "ho
     return "installed"
 
 
-def uninstall_hook(git_root: str) -> Literal["uninstalled", "not_installed", "not_managed"]:
-    hook_path = get_hook_path(git_root)
+def uninstall_hook(git_root: str, hook_type: HookType = HOOK_POST_CHECKOUT) -> HookUninstallResult:
+    hook_path = get_hook_path(git_root, hook_type)
 
     if not os.path.exists(hook_path):
         return "not_installed"

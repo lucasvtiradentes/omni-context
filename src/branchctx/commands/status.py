@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 from branchctx.config import Config, config_exists, list_templates
+from branchctx.constants import HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.git import git_config_get
 from branchctx.hooks import get_current_branch, get_git_root, is_hook_installed
 from branchctx.sync import list_branches
@@ -16,12 +17,19 @@ def cmd_status(_args: list[str]) -> int:
 
     branch = get_current_branch(git_root)
     initialized = config_exists(git_root)
-    hook_installed = is_hook_installed(git_root)
+    checkout_hook = is_hook_installed(git_root, HOOK_POST_CHECKOUT)
+    commit_hook = is_hook_installed(git_root, HOOK_POST_COMMIT)
 
     print(f"Repository:  {git_root}")
     print(f"Branch:      {branch}")
     print(f"Initialized: {'yes' if initialized else 'no'}")
-    print(f"Hook:        {'installed' if hook_installed else 'not installed'}")
+
+    hooks = []
+    if checkout_hook:
+        hooks.append(HOOK_POST_CHECKOUT)
+    if commit_hook:
+        hooks.append(HOOK_POST_COMMIT)
+    print(f"Hooks:       {', '.join(hooks) if hooks else 'none'}")
 
     if initialized:
         config = Config.load(git_root)
