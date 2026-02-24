@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import platform
+import shlex
 import shutil
 import subprocess
 from importlib import resources
@@ -101,7 +102,7 @@ def run_on_switch(workspace: str, branch: str, config: Config):
     if not config.on_switch:
         return
 
-    cmd = config.on_switch.replace("{branch}", branch)
+    cmd = config.on_switch.replace("{branch}", shlex.quote(branch))
 
     subprocess.run(
         cmd,
