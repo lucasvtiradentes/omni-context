@@ -12,7 +12,6 @@ from omnicontext.sync import (
     get_branch_rel_path,
     list_branches,
     play_sound,
-    sanitize_branch_name,
     sync_branch,
     update_symlink,
 )
@@ -39,12 +38,6 @@ def workspace():
             f.write(DEFAULT_TEMPLATE_CONTEXT)
 
         yield tmpdir
-
-
-def test_sanitize_branch_name():
-    assert sanitize_branch_name("main") == "main"
-    assert sanitize_branch_name("feature/login") == "feature-login"
-    assert sanitize_branch_name("feature/auth/oauth") == "feature-auth-oauth"
 
 
 def test_create_branch_context_from_template(workspace):
