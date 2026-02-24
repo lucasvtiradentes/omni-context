@@ -3,9 +3,8 @@ import tempfile
 
 import pytest
 
-from omnicontext.config import Config, get_branches_dir, get_config_dir, get_template_dir
-from tests.utils import normalize_path
 from omnicontext.assets import get_template_context
+from omnicontext.config import Config, get_branches_dir, get_config_dir, get_template_dir
 from omnicontext.constants import DEFAULT_SYMLINK, GIT_DIR
 from omnicontext.sync import (
     branch_context_exists,
@@ -16,6 +15,7 @@ from omnicontext.sync import (
     sync_branch,
     update_symlink,
 )
+from tests.utils import normalize_path
 
 
 @pytest.fixture
