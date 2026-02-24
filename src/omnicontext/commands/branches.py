@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from omnicontext.config import config_exists
@@ -6,7 +8,7 @@ from omnicontext.hooks import get_current_branch, get_git_root
 from omnicontext.sync import get_branch_dir, list_branches
 
 
-def cmd_branches(_args):
+def cmd_branches(_args: list[str]) -> int:
     git_root = get_git_root()
     if not git_root:
         print("error: not a git repository")

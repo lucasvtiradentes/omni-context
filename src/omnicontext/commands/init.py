@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from omnicontext.assets import get_gitignore, get_template_context
@@ -6,7 +8,7 @@ from omnicontext.constants import CONFIG_FILE
 from omnicontext.hooks import get_git_root, install_hook
 
 
-def cmd_init(_args):
+def cmd_init(_args: list[str]) -> int:
     git_root = get_git_root()
     if not git_root:
         print("error: not a git repository")

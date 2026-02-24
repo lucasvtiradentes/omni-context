@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from omnicontext.constants import CLI_NAME
 from omnicontext.git import git_config_unset
 from omnicontext.hooks import get_git_root, uninstall_hook
 
 
-def cmd_uninstall(args):
+def cmd_uninstall(args: list[str]) -> int:
     if "--global" in args:
         git_config_unset("core.hooksPath", scope="global")
         print("Global hooks path unset")
