@@ -10,10 +10,11 @@ from omnicontext.commands import (
     cmd_sync,
     cmd_uninstall,
 )
+from omnicontext.constants import CLI_NAME, PACKAGE_NAME
 
 
 def print_help():
-    print("""omnicontext - Git branch context manager
+    print(f"""{CLI_NAME} - Git branch context manager
 
 Commands:
   init                 Initialize .omnicontext/ in current repo
@@ -31,10 +32,10 @@ Options:
   --version, -v        Show version
 
 Examples:
-  omnicontext init                             # initialize project
-  omnicontext install                          # install hook
-  omnicontext sync                             # sync current branch
-  omnicontext branches                         # list contexts
+  {CLI_NAME} init                             # initialize project
+  {CLI_NAME} install                          # install hook
+  {CLI_NAME} sync                             # sync current branch
+  {CLI_NAME} branches                         # list contexts
 
 Exit codes:
   0 - success
@@ -49,7 +50,7 @@ def main():
         return 0
 
     if "--version" in args or "-v" in args:
-        print(pkg_version("omnicontext"))
+        print(pkg_version(PACKAGE_NAME))
         return 0
 
     cmd = args[0]
@@ -69,7 +70,7 @@ def main():
         sys.exit(commands[cmd](cmd_args))
     else:
         print(f"error: unknown command '{cmd}'")
-        print("Run 'omnicontext --help' for usage")
+        print(f"Run '{CLI_NAME} --help' for usage")
         sys.exit(1)
 
 

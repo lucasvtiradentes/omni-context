@@ -7,11 +7,12 @@ import subprocess
 from importlib import resources
 
 from omnicontext.config import Config, get_branches_dir, get_template_dir
+from omnicontext.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_SOUND_FILE, ENV_BRANCH, PACKAGE_NAME
 
 
 def get_default_sound_file() -> str | None:
     try:
-        return str(resources.files("omnicontext.assets").joinpath("complete.oga"))
+        return str(resources.files(f"{PACKAGE_NAME}.assets").joinpath(DEFAULT_SOUND_FILE))
     except Exception:
         return None
 
@@ -43,6 +44,10 @@ def sanitize_branch_name(branch: str) -> str:
 def get_branch_dir(workspace: str, branch: str) -> str:
     safe_name = sanitize_branch_name(branch)
     return os.path.join(get_branches_dir(workspace), safe_name)
+
+
+def get_branch_rel_path(branch: str) -> str:
+    return f"{CONFIG_DIR}/{BRANCHES_DIR}/{sanitize_branch_name(branch)}"
 
 
 def branch_context_exists(workspace: str, branch: str) -> bool:
@@ -102,7 +107,7 @@ def run_on_switch(workspace: str, branch: str, config: Config):
         cmd,
         shell=True,
         cwd=workspace,
-        env={**os.environ, "OMNICONTEXT_BRANCH": branch},
+        env={**os.environ, ENV_BRANCH: branch},
     )
 
 

@@ -1,0 +1,91 @@
+from __future__ import annotations
+
+import subprocess
+
+
+def git_init(path: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "init"], cwd=path, capture_output=True, check=True)
+
+
+def git_config(path: str, key: str, value: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "config", key, value], cwd=path, capture_output=True)
+
+
+def git_add(path: str, files: str = ".") -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "add", files], cwd=path, capture_output=True)
+
+
+def git_commit(path: str, message: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "commit", "-m", message], cwd=path, capture_output=True, check=True)
+
+
+def git_checkout(path: str, branch: str, create: bool = False) -> subprocess.CompletedProcess:
+    cmd = ["git", "checkout"]
+    if create:
+        cmd.append("-b")
+    cmd.append(branch)
+    return subprocess.run(cmd, cwd=path, capture_output=True, check=True)
+
+
+def git_current_branch(path: str) -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError:
+        return None
+
+
+def git_root(path: str) -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError:
+        return None
+
+
+def git_config_get(key: str, scope: str | None = None) -> str | None:
+    cmd = ["git", "config"]
+    if scope == "global":
+        cmd.append("--global")
+    cmd.append(key)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return result.stdout.strip()
+    except subprocess.CalledProcessError:
+        return None
+
+
+def git_config_set(key: str, value: str, scope: str | None = None) -> bool:
+    cmd = ["git", "config"]
+    if scope == "global":
+        cmd.append("--global")
+    cmd.extend([key, value])
+    try:
+        subprocess.run(cmd, capture_output=True, check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
+def git_config_unset(key: str, scope: str | None = None) -> bool:
+    cmd = ["git", "config", "--unset"]
+    if scope == "global":
+        cmd.insert(2, "--global")
+    cmd.append(key)
+    try:
+        subprocess.run(cmd, capture_output=True, check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False

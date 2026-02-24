@@ -1,6 +1,7 @@
 import os
 
-from omnicontext.constants import HOOK_MARKER, HOOK_TEMPLATE
+from omnicontext.constants import CLI_NAME, GLOBAL_HOOKS_DIR, HOOK_MARKER, HOOK_NAME, HOOK_TEMPLATE
+from omnicontext.git import git_config_set
 from omnicontext.hooks import get_default_callback, get_git_root, install_hook
 
 
@@ -17,10 +18,10 @@ def cmd_install(args):
             callback = args[idx + 1]
 
     if "--global" in args:
-        global_hooks = os.path.expanduser("~/.git-hooks")
+        global_hooks = os.path.expanduser(GLOBAL_HOOKS_DIR)
         os.makedirs(global_hooks, exist_ok=True)
 
-        hook_path = os.path.join(global_hooks, "post-checkout")
+        hook_path = os.path.join(global_hooks, HOOK_NAME)
 
         callback_cmd = callback or get_default_callback()
         content = HOOK_TEMPLATE.format(marker=HOOK_MARKER, callback=callback_cmd)
@@ -29,7 +30,7 @@ def cmd_install(args):
             f.write(content)
         os.chmod(hook_path, 0o755)
 
-        os.system(f'git config --global core.hooksPath "{global_hooks}"')
+        git_config_set("core.hooksPath", global_hooks, scope="global")
         print(f"Global hooks configured: {global_hooks}")
         print("All repos will now use this hook")
         return 0
@@ -43,7 +44,7 @@ def cmd_install(args):
         print("Hook already installed")
         return 0
     elif result == "hook_exists":
-        print("error: post-checkout hook already exists (not managed by omnicontext)")
+        print(f"error: post-checkout hook already exists (not managed by {CLI_NAME})")
         print("Remove it manually or use --force to overwrite")
         return 1
 

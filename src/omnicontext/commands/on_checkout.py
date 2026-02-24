@@ -1,11 +1,12 @@
 from omnicontext.config import config_exists
+from omnicontext.constants import CLI_NAME
 from omnicontext.hooks import get_git_root
 from omnicontext.sync import sync_branch
 
 
 def cmd_on_checkout(args):
     if len(args) < 2:
-        print("usage: omnicontext on-checkout <old_branch> <new_branch>")
+        print(f"usage: {CLI_NAME} on-checkout <old_branch> <new_branch>")
         return 1
 
     old_branch = args[0]

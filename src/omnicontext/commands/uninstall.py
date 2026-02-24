@@ -1,11 +1,11 @@
-import os
-
+from omnicontext.constants import CLI_NAME
+from omnicontext.git import git_config_unset
 from omnicontext.hooks import get_git_root, uninstall_hook
 
 
 def cmd_uninstall(args):
     if "--global" in args:
-        os.system("git config --global --unset core.hooksPath")
+        git_config_unset("core.hooksPath", scope="global")
         print("Global hooks path unset")
         return 0
 
@@ -23,7 +23,7 @@ def cmd_uninstall(args):
         print("No hook installed")
         return 0
     elif result == "not_managed":
-        print("error: hook exists but not managed by omnicontext")
+        print(f"error: hook exists but not managed by {CLI_NAME}")
         return 1
 
     return 1

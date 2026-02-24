@@ -1,4 +1,5 @@
 from omnicontext.config import config_exists
+from omnicontext.constants import CLI_NAME
 from omnicontext.hooks import get_current_branch, get_git_root
 from omnicontext.sync import sync_branch
 
@@ -10,7 +11,7 @@ def cmd_sync(_args):
         return 1
 
     if not config_exists(git_root):
-        print("error: not initialized. Run 'omnicontext init' first")
+        print(f"error: not initialized. Run '{CLI_NAME} init' first")
         return 1
 
     branch = get_current_branch(git_root)

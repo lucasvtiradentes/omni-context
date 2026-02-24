@@ -1,14 +1,14 @@
 import os
 import shutil
 import stat
-import subprocess
 import sys
 
-from omnicontext.constants import HOOK_MARKER, HOOK_NAME, HOOK_TEMPLATE
+from omnicontext.constants import CLI_NAME, GIT_DIR, HOOK_MARKER, HOOK_NAME, HOOK_TEMPLATE
+from omnicontext.git import git_current_branch, git_root
 
 
 def get_omnicontext_path():
-    script_name = "omnicontext"
+    script_name = CLI_NAME
 
     if getattr(sys, "frozen", False):
         return sys.executable
@@ -31,22 +31,11 @@ def get_default_callback():
 
 
 def get_git_root(path=None):
-    cwd = path or os.getcwd()
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        return result.stdout.strip()
-    except subprocess.CalledProcessError:
-        return None
+    return git_root(path or os.getcwd())
 
 
 def get_hook_path(git_root):
-    return os.path.join(git_root, ".git", "hooks", HOOK_NAME)
+    return os.path.join(git_root, GIT_DIR, "hooks", HOOK_NAME)
 
 
 def is_hook_installed(git_root):
@@ -99,16 +88,5 @@ def uninstall_hook(git_root):
     return "uninstalled"
 
 
-def get_current_branch(git_root=None):
-    cwd = git_root or os.getcwd()
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        return result.stdout.strip()
-    except subprocess.CalledProcessError:
-        return None
+def get_current_branch(path=None):
+    return git_current_branch(path or os.getcwd())

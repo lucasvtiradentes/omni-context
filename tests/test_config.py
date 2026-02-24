@@ -11,7 +11,7 @@ from omnicontext.config import (
     get_config_dir,
     get_template_dir,
 )
-from omnicontext.constants import CONFIG_DIR
+from omnicontext.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_SYMLINK, TEMPLATE_DIR
 
 
 @pytest.fixture
@@ -29,12 +29,12 @@ def test_get_config_dir(workspace):
 
 def test_get_branches_dir(workspace):
     result = get_branches_dir(workspace)
-    assert result == os.path.join(workspace, CONFIG_DIR, "branches")
+    assert result == os.path.join(workspace, CONFIG_DIR, BRANCHES_DIR)
 
 
 def test_get_template_dir(workspace):
     result = get_template_dir(workspace)
-    assert result == os.path.join(workspace, CONFIG_DIR, "template")
+    assert result == os.path.join(workspace, CONFIG_DIR, TEMPLATE_DIR)
 
 
 def test_config_exists_false(workspace):
@@ -49,7 +49,7 @@ def test_config_exists_true(workspace):
 
 def test_config_default_values():
     config = Config()
-    assert config.symlink == ".branch-context"
+    assert config.symlink == DEFAULT_SYMLINK
     assert config.on_switch is None
     assert config.sync.provider == "local"
 
@@ -71,5 +71,5 @@ def test_config_save_and_load(workspace):
 
 def test_config_load_missing_file(workspace):
     config = Config.load(workspace)
-    assert config.symlink == ".branch-context"
+    assert config.symlink == DEFAULT_SYMLINK
     assert config.on_switch is None

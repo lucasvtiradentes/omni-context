@@ -1,6 +1,7 @@
 import os
 
 from omnicontext.config import Config, config_exists
+from omnicontext.git import git_config_get
 from omnicontext.hooks import get_current_branch, get_git_root, is_hook_installed
 from omnicontext.sync import list_branches
 
@@ -29,7 +30,7 @@ def cmd_status(_args):
         branches = list_branches(git_root)
         print(f"Contexts:    {len(branches)} branches")
 
-    global_hooks = os.popen("git config --global core.hooksPath 2>/dev/null").read().strip()
+    global_hooks = git_config_get("core.hooksPath", scope="global")
     if global_hooks:
         print(f"Global:      {global_hooks}")
 

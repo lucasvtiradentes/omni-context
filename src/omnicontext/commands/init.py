@@ -1,7 +1,7 @@
 import os
 
 from omnicontext.config import Config, config_exists, get_branches_dir, get_config_dir, get_template_dir
-from omnicontext.constants import CONFIG_FILE, DEFAULT_TEMPLATE_CONTEXT, GITIGNORE_BRANCHES, GITIGNORE_ROOT
+from omnicontext.constants import CLI_NAME, CONFIG_FILE, DEFAULT_TEMPLATE_CONTEXT, GITIGNORE_BRANCHES, GITIGNORE_ROOT
 from omnicontext.hooks import get_git_root
 
 
@@ -40,5 +40,5 @@ def cmd_init(_args):
     print(f"  template: {template_dir}/")
     print(f"  branches: {branches_dir}/ (gitignored)")
     print("")
-    print("Next: run 'omnicontext install' to install the hook")
+    print(f"Next: run '{CLI_NAME} install' to install the hook")
     return 0

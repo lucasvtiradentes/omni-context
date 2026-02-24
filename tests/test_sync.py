@@ -4,12 +4,14 @@ import tempfile
 import pytest
 
 from omnicontext.config import Config, get_branches_dir, get_config_dir, get_template_dir
-from omnicontext.constants import DEFAULT_TEMPLATE_CONTEXT
+from omnicontext.constants import DEFAULT_SYMLINK, DEFAULT_TEMPLATE_CONTEXT
 from omnicontext.sync import (
     branch_context_exists,
     create_branch_context,
     get_branch_dir,
+    get_branch_rel_path,
     list_branches,
+    play_sound,
     sanitize_branch_name,
     sync_branch,
     update_symlink,
@@ -144,7 +146,69 @@ def test_sync_branch(workspace):
     assert "feature-test" in result["branch_dir"]
     assert result["create_result"] == "created_from_template"
     assert result["symlink_result"] == "updated"
-    assert result["symlink_path"] == ".branch-context"
+    assert result["symlink_path"] == DEFAULT_SYMLINK
 
-    symlink_path = os.path.join(workspace, ".branch-context")
+    symlink_path = os.path.join(workspace, DEFAULT_SYMLINK)
     assert os.path.islink(symlink_path)
+
+
+def test_symlink_switches_between_branches(workspace):
+    config = Config.load(workspace)
+    symlink_path = os.path.join(workspace, config.symlink)
+
+    create_branch_context(workspace, "main")
+    create_branch_context(workspace, "feature")
+
+    update_symlink(workspace, "main", config)
+    assert os.readlink(symlink_path) == get_branch_rel_path("main")
+
+    update_symlink(workspace, "feature", config)
+    assert os.readlink(symlink_path) == get_branch_rel_path("feature")
+
+    update_symlink(workspace, "main", config)
+    assert os.readlink(symlink_path) == get_branch_rel_path("main")
+
+
+def test_branch_content_isolation(workspace):
+    config = Config.load(workspace)
+    symlink_path = os.path.join(workspace, config.symlink)
+
+    sync_branch(workspace, "main")
+    with open(os.path.join(symlink_path, "context.md"), "w") as f:
+        f.write("MAIN CONTENT")
+
+    sync_branch(workspace, "feature")
+    with open(os.path.join(symlink_path, "context.md"), "w") as f:
+        f.write("FEATURE CONTENT")
+
+    sync_branch(workspace, "main")
+    with open(os.path.join(symlink_path, "context.md")) as f:
+        assert f.read() == "MAIN CONTENT"
+
+    sync_branch(workspace, "feature")
+    with open(os.path.join(symlink_path, "context.md")) as f:
+        assert f.read() == "FEATURE CONTENT"
+
+
+def test_multiple_branch_switches(workspace):
+    config = Config.load(workspace)
+    symlink_path = os.path.join(workspace, config.symlink)
+    branches = ["main", "dev", "feature/a", "feature/b"]
+
+    for branch in branches:
+        result = sync_branch(workspace, branch)
+        assert result["symlink_result"] in ("updated", "unchanged")
+        assert os.path.islink(symlink_path)
+
+    for _ in range(3):
+        for branch in branches:
+            sync_branch(workspace, branch)
+            assert os.readlink(symlink_path) == get_branch_rel_path(branch)
+
+
+def test_play_sound_no_file():
+    play_sound(None)
+
+
+def test_play_sound_missing_file():
+    play_sound("/nonexistent/path/sound.wav")

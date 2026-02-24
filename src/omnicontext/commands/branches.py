@@ -1,6 +1,7 @@
 import os
 
 from omnicontext.config import config_exists
+from omnicontext.constants import CLI_NAME
 from omnicontext.hooks import get_current_branch, get_git_root
 from omnicontext.sync import get_branch_dir, list_branches
 
@@ -12,7 +13,7 @@ def cmd_branches(_args):
         return 1
 
     if not config_exists(git_root):
-        print("error: not initialized. Run 'omnicontext init' first")
+        print(f"error: not initialized. Run '{CLI_NAME} init' first")
         return 1
 
     branches = list_branches(git_root)

@@ -4,27 +4,34 @@ import json
 import os
 from dataclasses import dataclass, field
 
-from omnicontext.constants import CONFIG_DIR, CONFIG_FILE
+from omnicontext.constants import (
+    BRANCHES_DIR,
+    CONFIG_DIR,
+    CONFIG_FILE,
+    DEFAULT_SYMLINK,
+    DEFAULT_SYNC_PROVIDER,
+    TEMPLATE_DIR,
+)
 
 DEFAULT_CONFIG = {
-    "symlink": ".branch-context",
+    "symlink": DEFAULT_SYMLINK,
     "on_switch": None,
     "sync": {
-        "provider": "local",
+        "provider": DEFAULT_SYNC_PROVIDER,
     },
 }
 
 
 @dataclass
 class SyncConfig:
-    provider: str = "local"
+    provider: str = DEFAULT_SYNC_PROVIDER
     gcp_bucket: str | None = None
     gcp_credentials_file: str | None = None
 
 
 @dataclass
 class Config:
-    symlink: str = ".branch-context"
+    symlink: str = DEFAULT_SYMLINK
     on_switch: str | None = None
     sound: bool = True
     sound_file: str | None = None
@@ -42,13 +49,13 @@ class Config:
 
         sync_data = data.get("sync", {})
         sync_config = SyncConfig(
-            provider=sync_data.get("provider", "local"),
+            provider=sync_data.get("provider", DEFAULT_SYNC_PROVIDER),
             gcp_bucket=sync_data.get("gcp", {}).get("bucket"),
             gcp_credentials_file=sync_data.get("gcp", {}).get("credentials_file"),
         )
 
         return cls(
-            symlink=data.get("symlink", ".branch-context"),
+            symlink=data.get("symlink", DEFAULT_SYMLINK),
             on_switch=data.get("on_switch"),
             sound=data.get("sound", True),
             sound_file=data.get("sound_file"),
@@ -85,11 +92,11 @@ def get_config_dir(workspace: str) -> str:
 
 
 def get_branches_dir(workspace: str) -> str:
-    return os.path.join(workspace, CONFIG_DIR, "branches")
+    return os.path.join(workspace, CONFIG_DIR, BRANCHES_DIR)
 
 
 def get_template_dir(workspace: str) -> str:
-    return os.path.join(workspace, CONFIG_DIR, "template")
+    return os.path.join(workspace, CONFIG_DIR, TEMPLATE_DIR)
 
 
 def config_exists(workspace: str) -> bool:
