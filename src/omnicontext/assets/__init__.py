@@ -24,7 +24,3 @@ def get_gitignore() -> str:
 
 def get_hook_template() -> str:
     return get_asset("hook_template.sh")
-
-
-def get_sound_path(name: str) -> Path:
-    return ASSETS_DIR / name
