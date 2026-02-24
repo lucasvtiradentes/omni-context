@@ -1,18 +1,33 @@
-# Feature Context
+# Feature: [name]
 
-## Objective
+## Problem
 
-Describe the feature goal here.
+What problem does this feature solve?
+
+## Solution
+
+How will it be implemented?
 
 ## Acceptance Criteria
 
-- [ ] Criterion 1
-- [ ] Criterion 2
+- [ ]
+- [ ]
 
-## Notes
+## Status
 
-N/A
+- [ ] Design
+- [ ] Implementation
+- [ ] Testing
+- [ ] Review
+
+## Files Changed
+
+-
+
+## Dependencies
+
+-
 
 ## Tasks
 
-- [ ] TODO
+- [ ]

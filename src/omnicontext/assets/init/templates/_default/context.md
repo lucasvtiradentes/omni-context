@@ -1,13 +1,23 @@
 # Branch Context
 
-## Objective
+## Goal
 
-N/A
+What is the objective of this branch?
+
+## Status
+
+- [ ] In progress
+- [ ] Ready for review
+- [ ] Merged
 
 ## Notes
 
-N/A
+-
+
+## Decisions
+
+-
 
 ## Tasks
 
-- [ ] TODO
+- [ ]

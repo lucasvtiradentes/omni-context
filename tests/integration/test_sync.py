@@ -212,7 +212,7 @@ def test_create_branch_context_with_template_rules(workspace):
     branch_dir = get_branch_dir(workspace, "feature/login")
     with open(os.path.join(branch_dir, "context.md")) as f:
         content = f.read()
-    assert "Feature Context" in content
+    assert "Feature:" in content
 
 
 def test_reset_branch_context(workspace):
@@ -227,7 +227,7 @@ def test_reset_branch_context(workspace):
 
     with open(os.path.join(branch_dir, "context.md")) as f:
         content = f.read()
-    assert "Branch Context" in content
+    assert "# Branch Context" in content
     assert "MODIFIED CONTENT" not in content
 
 
@@ -240,4 +240,4 @@ def test_reset_branch_context_with_specific_template(workspace):
     branch_dir = get_branch_dir(workspace, "main")
     with open(os.path.join(branch_dir, "context.md")) as f:
         content = f.read()
-    assert "Feature Context" in content
+    assert "Feature:" in content
