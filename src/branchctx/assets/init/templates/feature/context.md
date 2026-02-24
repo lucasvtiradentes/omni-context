@@ -20,10 +20,6 @@ How will it be implemented?
 - [ ] Testing
 - [ ] Review
 
-## Files Changed
-
--
-
 ## Dependencies
 
 -
@@ -31,3 +27,11 @@ How will it be implemented?
 ## Tasks
 
 - [ ]
+
+## Commits
+
+<bctx:commits></bctx:commits>
+
+## Changed Files
+
+<bctx:files></bctx:files>

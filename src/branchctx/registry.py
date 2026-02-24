@@ -22,7 +22,7 @@ COMMANDS: dict[str, CommandInfo] = {
     "completion": {"desc": "Generate shell completion", "args": "<shell>"},
 }
 
-INTERNAL_COMMANDS: set[str] = {"on-checkout"}
+INTERNAL_COMMANDS: set[str] = {"on-checkout", "on-commit"}
 
 _ALL_COMMANDS: set[str] = set(COMMANDS.keys()) | INTERNAL_COMMANDS
 
@@ -34,6 +34,7 @@ def get_command_handler(name: str) -> Callable[[list[str]], int]:
         cmd_doctor,
         cmd_init,
         cmd_on_checkout,
+        cmd_on_commit,
         cmd_reset,
         cmd_status,
         cmd_sync,
@@ -47,6 +48,7 @@ def get_command_handler(name: str) -> Callable[[list[str]], int]:
         "branches": cmd_branches,
         "status": cmd_status,
         "on-checkout": cmd_on_checkout,
+        "on-commit": cmd_on_commit,
         "reset": cmd_reset,
         "doctor": cmd_doctor,
         "completion": cmd_completion,

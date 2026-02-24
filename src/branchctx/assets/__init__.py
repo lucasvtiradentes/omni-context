@@ -24,8 +24,12 @@ def get_gitignore() -> str:
     return get_init_asset("gitignore")
 
 
-def get_hook_template() -> str:
-    return get_init_asset("hook_template.sh")
+def get_post_checkout_hook_template() -> str:
+    return get_init_asset("hook_post_checkout.sh")
+
+
+def get_post_commit_hook_template() -> str:
+    return get_init_asset("hook_post_commit.sh")
 
 
 def get_init_templates_dir() -> Path:

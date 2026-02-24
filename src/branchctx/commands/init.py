@@ -5,7 +5,7 @@ from pathlib import Path
 
 from branchctx.assets import copy_init_templates, get_gitignore
 from branchctx.config import Config, config_exists, get_branches_dir, get_config_dir, get_templates_dir
-from branchctx.constants import CONFIG_FILE
+from branchctx.constants import CLI_NAME, CONFIG_FILE, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.hooks import get_current_branch, get_git_root, install_hook
 from branchctx.sync import sync_branch
 
@@ -39,17 +39,23 @@ def cmd_init(_args: list[str]) -> int:
         print(f"  templates: {templates_dir}/")
         print(f"  branches:  {branches_dir}/ (gitignored)")
 
-    hook_result = install_hook(git_root)
-
-    if hook_result == "installed":
-        print("Hook installed")
-    elif hook_result == "already_installed":
+    checkout_result = install_hook(git_root, HOOK_POST_CHECKOUT)
+    if checkout_result == "installed":
+        print(f"Hook installed: {HOOK_POST_CHECKOUT}")
+    elif checkout_result == "already_installed":
         if already_initialized:
             print("Already initialized")
-    elif hook_result == "hook_exists":
-        print("warning: post-checkout hook exists but not managed by branchctx")
+    elif checkout_result == "hook_exists":
+        print(f"warning: {HOOK_POST_CHECKOUT} hook exists but not managed by {CLI_NAME}")
 
     config = Config.load(git_root)
+    if config.changed_files.enabled:
+        commit_result = install_hook(git_root, HOOK_POST_COMMIT)
+        if commit_result == "installed":
+            print(f"Hook installed: {HOOK_POST_COMMIT}")
+        elif commit_result == "hook_exists":
+            print(f"warning: {HOOK_POST_COMMIT} hook exists but not managed by {CLI_NAME}")
+
     _add_to_gitignore(git_root, config.symlink)
 
     branch = get_current_branch(git_root)

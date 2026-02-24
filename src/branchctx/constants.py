@@ -5,8 +5,9 @@ CLI_ALIASES = ["branch-ctx", "bctx"]
 ENV_BRANCH = "BRANCH_CTX_BRANCH"
 
 GIT_DIR = ".git"
-HOOK_NAME = "post-checkout"
 HOOK_MARKER = "# branch-ctx-managed"
+HOOK_POST_CHECKOUT = "post-checkout"
+HOOK_POST_COMMIT = "post-commit"
 DEFAULT_SOUND_FILE = "notification.oga"
 
 CONFIG_DIR = ".bctx"

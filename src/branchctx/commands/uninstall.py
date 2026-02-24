@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from branchctx.constants import CLI_NAME
+from branchctx.constants import CLI_NAME, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.git import git_config_unset
 from branchctx.hooks import get_git_root, uninstall_hook
 
@@ -16,16 +16,20 @@ def cmd_uninstall(args: list[str]) -> int:
         print("error: not a git repository")
         return 1
 
-    result = uninstall_hook(git_root)
+    checkout_result = uninstall_hook(git_root, HOOK_POST_CHECKOUT)
+    commit_result = uninstall_hook(git_root, HOOK_POST_COMMIT)
 
-    if result == "uninstalled":
-        print("Hook removed")
-        return 0
-    elif result == "not_installed":
-        print("No hook installed")
-        return 0
-    elif result == "not_managed":
-        print(f"error: hook exists but not managed by {CLI_NAME}")
-        return 1
+    if checkout_result == "uninstalled":
+        print(f"Hook removed: {HOOK_POST_CHECKOUT}")
+    elif checkout_result == "not_managed":
+        print(f"warning: {HOOK_POST_CHECKOUT} hook exists but not managed by {CLI_NAME}")
 
-    return 1
+    if commit_result == "uninstalled":
+        print(f"Hook removed: {HOOK_POST_COMMIT}")
+    elif commit_result == "not_managed":
+        print(f"warning: {HOOK_POST_COMMIT} hook exists but not managed by {CLI_NAME}")
+
+    if checkout_result == "not_installed" and commit_result == "not_installed":
+        print("No hooks installed")
+
+    return 0
