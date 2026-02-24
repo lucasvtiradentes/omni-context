@@ -35,6 +35,7 @@ dev = ["pytest>=7", "ruff>=0.9", "towncrier>=23", "bump2version>=1"]
 
 [project.scripts]
 omnicontext = "omnicontext.cli:main"
+oc = "omnicontext.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/omnicontext"]
