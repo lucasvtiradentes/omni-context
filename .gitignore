@@ -6,3 +6,4 @@ build/
 .venv/
 .ignore
 .branch-context
+**/.DS_Store
