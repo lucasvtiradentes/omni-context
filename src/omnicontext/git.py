@@ -7,19 +7,19 @@ def git_init(path: str, branch: str | None = None) -> subprocess.CompletedProces
     cmd = ["git", "init"]
     if branch:
         cmd.extend(["-b", branch])
-    return subprocess.run(cmd, cwd=path, capture_output=True, check=True)
+    return subprocess.run(cmd, cwd=path, capture_output=True, text=True, check=True)
 
 
 def git_config(path: str, key: str, value: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", "config", key, value], cwd=path, capture_output=True)
+    return subprocess.run(["git", "config", key, value], cwd=path, capture_output=True, text=True)
 
 
 def git_add(path: str, files: str = ".") -> subprocess.CompletedProcess:
-    return subprocess.run(["git", "add", files], cwd=path, capture_output=True)
+    return subprocess.run(["git", "add", files], cwd=path, capture_output=True, text=True)
 
 
 def git_commit(path: str, message: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", "commit", "-m", message], cwd=path, capture_output=True, check=True)
+    return subprocess.run(["git", "commit", "-m", message], cwd=path, capture_output=True, text=True, check=True)
 
 
 def git_checkout(path: str, branch: str, create: bool = False) -> subprocess.CompletedProcess:
@@ -27,7 +27,7 @@ def git_checkout(path: str, branch: str, create: bool = False) -> subprocess.Com
     if create:
         cmd.append("-b")
     cmd.append(branch)
-    return subprocess.run(cmd, cwd=path, capture_output=True, check=True)
+    return subprocess.run(cmd, cwd=path, capture_output=True, text=True, check=True)
 
 
 def git_current_branch(path: str) -> str | None:
@@ -76,7 +76,7 @@ def git_config_set(key: str, value: str, scope: str | None = None) -> bool:
         cmd.append("--global")
     cmd.extend([key, value])
     try:
-        subprocess.run(cmd, capture_output=True, check=True)
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
         return True
     except subprocess.CalledProcessError:
         return False
@@ -88,7 +88,7 @@ def git_config_unset(key: str, scope: str | None = None) -> bool:
         cmd.insert(2, "--global")
     cmd.append(key)
     try:
-        subprocess.run(cmd, capture_output=True, check=True)
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
         return True
     except subprocess.CalledProcessError:
         return False
