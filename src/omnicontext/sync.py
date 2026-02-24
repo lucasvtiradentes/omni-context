@@ -7,6 +7,7 @@ import shlex
 import shutil
 import subprocess
 from importlib import resources
+from typing import Literal
 
 from omnicontext.config import Config, get_branches_dir, get_template_dir
 from omnicontext.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_SOUND_FILE, ENV_BRANCH, PACKAGE_NAME
@@ -56,7 +57,7 @@ def branch_context_exists(workspace: str, branch: str) -> bool:
     return os.path.exists(get_branch_dir(workspace, branch))
 
 
-def create_branch_context(workspace: str, branch: str) -> str:
+def create_branch_context(workspace: str, branch: str) -> Literal["exists", "created_from_template", "created_empty"]:
     branch_dir = get_branch_dir(workspace, branch)
     template_dir = get_template_dir(workspace)
 
@@ -78,7 +79,7 @@ def create_branch_context(workspace: str, branch: str) -> str:
     return "created_empty"
 
 
-def update_symlink(workspace: str, branch: str, config: Config) -> str:
+def update_symlink(workspace: str, branch: str, config: Config) -> Literal["unchanged", "error_not_symlink", "updated"]:
     branch_dir = get_branch_dir(workspace, branch)
     symlink_path = os.path.join(workspace, config.symlink)
 
