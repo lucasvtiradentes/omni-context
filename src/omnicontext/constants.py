@@ -6,7 +6,6 @@ GIT_DIR = ".git"
 HOOK_NAME = "post-checkout"
 HOOK_MARKER = "# omnicontext-managed"
 DEFAULT_SOUND_FILE = "notification.oga"
-DEFAULT_SYNC_PROVIDER = "local"
 
 CONFIG_DIR = ".omnicontext"
 CONFIG_FILE = "config.json"

@@ -4,36 +4,24 @@ import json
 import os
 from dataclasses import dataclass, field
 
-from omnicontext.constants import (
-    BRANCHES_DIR,
-    CONFIG_DIR,
-    CONFIG_FILE,
-    DEFAULT_SYMLINK,
-    DEFAULT_SYNC_PROVIDER,
-    TEMPLATE_DIR,
-)
+from omnicontext.assets import get_default_config
+from omnicontext.constants import BRANCHES_DIR, CONFIG_DIR, CONFIG_FILE, TEMPLATE_DIR
 
-DEFAULT_CONFIG = {
-    "symlink": DEFAULT_SYMLINK,
-    "on_switch": None,
-    "sync": {
-        "provider": DEFAULT_SYNC_PROVIDER,
-    },
-}
+_DEFAULTS = get_default_config()
 
 
 @dataclass
 class SyncConfig:
-    provider: str = DEFAULT_SYNC_PROVIDER
+    provider: str = field(default_factory=lambda: _DEFAULTS["sync"]["provider"])
     gcp_bucket: str | None = None
     gcp_credentials_file: str | None = None
 
 
 @dataclass
 class Config:
-    symlink: str = DEFAULT_SYMLINK
-    on_switch: str | None = None
-    sound: bool = True
+    symlink: str = field(default_factory=lambda: _DEFAULTS["symlink"])
+    on_switch: str | None = field(default_factory=lambda: _DEFAULTS["on_switch"])
+    sound: bool = field(default_factory=lambda: _DEFAULTS["sound"])
     sound_file: str | None = None
     sync: SyncConfig = field(default_factory=SyncConfig)
 
@@ -49,15 +37,15 @@ class Config:
 
         sync_data = data.get("sync", {})
         sync_config = SyncConfig(
-            provider=sync_data.get("provider", DEFAULT_SYNC_PROVIDER),
+            provider=sync_data.get("provider", _DEFAULTS["sync"]["provider"]),
             gcp_bucket=sync_data.get("gcp", {}).get("bucket"),
             gcp_credentials_file=sync_data.get("gcp", {}).get("credentials_file"),
         )
 
         return cls(
-            symlink=data.get("symlink", DEFAULT_SYMLINK),
+            symlink=data.get("symlink", _DEFAULTS["symlink"]),
             on_switch=data.get("on_switch"),
-            sound=data.get("sound", True),
+            sound=data.get("sound", _DEFAULTS["sound"]),
             sound_file=data.get("sound_file"),
             sync=sync_config,
         )

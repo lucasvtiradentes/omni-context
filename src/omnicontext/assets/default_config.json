@@ -1,0 +1,8 @@
+{
+  "symlink": ".branch-context",
+  "on_switch": null,
+  "sound": true,
+  "sync": {
+    "provider": "local"
+  }
+}
