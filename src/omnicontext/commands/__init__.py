@@ -1,4 +1,5 @@
 from omnicontext.commands.branches import cmd_branches
+from omnicontext.commands.completion import cmd_completion
 from omnicontext.commands.doctor import cmd_doctor
 from omnicontext.commands.init import cmd_init
 from omnicontext.commands.on_checkout import cmd_on_checkout
@@ -16,4 +17,5 @@ __all__ = [
     "cmd_on_checkout",
     "cmd_reset",
     "cmd_doctor",
+    "cmd_completion",
 ]

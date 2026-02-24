@@ -1,30 +1,23 @@
 import sys
 from importlib.metadata import version as pkg_version
 
-from omnicontext.commands import (
-    cmd_branches,
-    cmd_doctor,
-    cmd_init,
-    cmd_on_checkout,
-    cmd_reset,
-    cmd_status,
-    cmd_sync,
-    cmd_uninstall,
-)
 from omnicontext.constants import CLI_NAME, PACKAGE_NAME
+from omnicontext.registry import COMMANDS, get_all_command_names, get_command_handler
 
 
 def print_help():
+    cmd_lines = []
+    for name, info in COMMANDS.items():
+        args = f" {info['args']}" if info["args"] else ""
+        label = f"{name}{args}"
+        cmd_lines.append(f"  {label:<20} {info['desc']}")
+
+    commands_str = "\n".join(cmd_lines)
+
     print(f"""{CLI_NAME} - Git branch context manager
 
 Commands:
-  init                 Initialize and install hook
-  uninstall            Remove hook from current repo
-  sync                 Sync context for current branch
-  branches             List all branch contexts
-  status               Show status
-  reset [template]     Reset context to template
-  doctor               Run diagnostics
+{commands_str}
 
 Options:
   --help, -h           Show this help
@@ -37,6 +30,7 @@ Examples:
   {CLI_NAME} reset                            # reset to auto-detected template
   {CLI_NAME} reset feature                    # reset to feature template
   {CLI_NAME} doctor                           # run diagnostics
+  {CLI_NAME} completion zsh                   # generate zsh completion
 
 Exit codes:
   0 - success
@@ -57,19 +51,9 @@ def main():
     cmd = args[0]
     cmd_args = args[1:]
 
-    commands = {
-        "init": cmd_init,
-        "uninstall": cmd_uninstall,
-        "sync": cmd_sync,
-        "branches": cmd_branches,
-        "status": cmd_status,
-        "on-checkout": cmd_on_checkout,
-        "reset": cmd_reset,
-        "doctor": cmd_doctor,
-    }
-
-    if cmd in commands:
-        sys.exit(commands[cmd](cmd_args))
+    if cmd in get_all_command_names():
+        handler = get_command_handler(cmd)
+        sys.exit(handler(cmd_args))
     else:
         print(f"error: unknown command '{cmd}'")
         print(f"Run '{CLI_NAME} --help' for usage")
