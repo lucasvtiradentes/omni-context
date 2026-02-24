@@ -32,8 +32,11 @@ class Config:
         if not os.path.exists(config_path):
             return cls()
 
-        with open(config_path) as f:
-            data = json.load(f)
+        try:
+            with open(config_path) as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            return cls()
 
         sync_data = data.get("sync", {})
         sync_config = SyncConfig(
