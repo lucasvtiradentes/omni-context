@@ -54,10 +54,9 @@ pip install branch-ctx
 bctx init                          # initialize + install hook
 bctx sync                          # sync current branch manually
 bctx branches                      # list all branch contexts
-bctx status                        # show status
+bctx status                        # show status and health
 bctx reset                         # reset context to template
 bctx reset feature                 # reset to specific template
-bctx doctor                        # run diagnostics
 bctx completion zsh                # generate shell completion
 bctx uninstall                     # remove hook
 ```

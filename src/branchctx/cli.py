@@ -27,9 +27,9 @@ Examples:
   {CLI_NAME} init                             # initialize + install hook
   {CLI_NAME} sync                             # sync current branch
   {CLI_NAME} branches                         # list contexts
+  {CLI_NAME} status                           # show status and health
   {CLI_NAME} reset                            # reset to auto-detected template
   {CLI_NAME} reset feature                    # reset to feature template
-  {CLI_NAME} doctor                           # run diagnostics
   {CLI_NAME} completion zsh                   # generate zsh completion
 
 Exit codes:

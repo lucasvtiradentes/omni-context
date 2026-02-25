@@ -16,9 +16,8 @@ COMMANDS: dict[str, CommandInfo] = {
     "uninstall": {"desc": "Remove hook from current repo", "args": ""},
     "sync": {"desc": "Sync context for current branch", "args": ""},
     "branches": {"desc": "List all branch contexts", "args": ""},
-    "status": {"desc": "Show status", "args": ""},
+    "status": {"desc": "Show status and health", "args": ""},
     "reset": {"desc": "Reset context to template", "args": "[template]"},
-    "doctor": {"desc": "Run diagnostics", "args": ""},
     "completion": {"desc": "Generate shell completion", "args": "<shell>"},
 }
 
@@ -31,7 +30,6 @@ def get_command_handler(name: str) -> Callable[[list[str]], int]:
     from branchctx.commands import (
         cmd_branches,
         cmd_completion,
-        cmd_doctor,
         cmd_init,
         cmd_on_checkout,
         cmd_on_commit,
@@ -50,7 +48,6 @@ def get_command_handler(name: str) -> Callable[[list[str]], int]:
         "on-checkout": cmd_on_checkout,
         "on-commit": cmd_on_commit,
         "reset": cmd_reset,
-        "doctor": cmd_doctor,
         "completion": cmd_completion,
     }
 

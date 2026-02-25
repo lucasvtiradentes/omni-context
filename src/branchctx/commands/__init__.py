@@ -1,6 +1,5 @@
 from branchctx.commands.branches import cmd_branches
 from branchctx.commands.completion import cmd_completion
-from branchctx.commands.doctor import cmd_doctor
 from branchctx.commands.init import cmd_init
 from branchctx.commands.on_checkout import cmd_on_checkout
 from branchctx.commands.on_commit import cmd_on_commit
@@ -18,6 +17,5 @@ __all__ = [
     "cmd_on_checkout",
     "cmd_on_commit",
     "cmd_reset",
-    "cmd_doctor",
     "cmd_completion",
 ]
