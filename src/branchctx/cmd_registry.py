@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, TypedDict
-
-if TYPE_CHECKING:
-    pass
+from typing import Callable, TypedDict
 
 
 class CommandInfo(TypedDict):
