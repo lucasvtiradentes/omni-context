@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from branchctx.config import Config, config_exists
+from branchctx.config import config_exists, get_base_branch
 from branchctx.constants import CLI_NAME
 from branchctx.context_tags import update_context_tags
 from branchctx.hooks import get_git_root
@@ -26,15 +26,14 @@ def cmd_on_checkout(args: list[str]) -> int:
 
     result = sync_branch(git_root, new_branch)
 
-    config = Config.load(git_root)
     branch_key = sanitize_branch_name(new_branch)
+    base_branch = get_base_branch(git_root)
 
     create_branch_meta(git_root, branch_key, new_branch)
-    update_branch_meta(git_root, branch_key, config.changed_files.base_branch)
+    update_branch_meta(git_root, branch_key, base_branch)
 
-    if config.changed_files.enabled:
-        context_dir = get_branch_dir(git_root, new_branch)
-        update_context_tags(git_root, context_dir, branch_key, config.changed_files.base_branch)
+    context_dir = get_branch_dir(git_root, new_branch)
+    update_context_tags(git_root, context_dir, branch_key, base_branch)
 
     status = "new" if result["create_result"] != "exists" else "synced"
     print(f"Branch: {old_branch} -> {new_branch} ({status})")

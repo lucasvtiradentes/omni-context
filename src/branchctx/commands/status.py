@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from branchctx.config import Config, config_exists, get_templates_dir, list_templates
+from branchctx.config import Config, config_exists, get_base_branch, get_templates_dir, list_templates
 from branchctx.constants import CLI_NAME, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.git import git_config_get, git_list_branches
 from branchctx.hooks import get_current_branch, get_git_root, is_hook_installed
@@ -52,6 +52,7 @@ def cmd_status(_args: list[str]) -> int:
 
     branches = list_branches(git_root)
     print(f"Contexts:    {len(branches)} branches")
+    print(f"Base:        {get_base_branch(git_root)}")
 
     global_hooks = git_config_get("core.hooksPath", scope="global")
     if global_hooks:
@@ -69,12 +70,11 @@ def cmd_status(_args: list[str]) -> int:
         issues.append(f"{HOOK_POST_CHECKOUT} hook not installed")
         print(f"  {STATUS_ERROR} {HOOK_POST_CHECKOUT} hook not installed")
 
-    if config.changed_files.enabled:
-        if is_hook_installed(git_root, HOOK_POST_COMMIT):
-            print(f"  {STATUS_OK} {HOOK_POST_COMMIT} hook installed")
-        else:
-            warnings.append(f"{HOOK_POST_COMMIT} hook not installed (changed_files enabled)")
-            print(f"  {STATUS_WARN} {HOOK_POST_COMMIT} hook not installed")
+    if is_hook_installed(git_root, HOOK_POST_COMMIT):
+        print(f"  {STATUS_OK} {HOOK_POST_COMMIT} hook installed")
+    else:
+        issues.append(f"{HOOK_POST_COMMIT} hook not installed")
+        print(f"  {STATUS_ERROR} {HOOK_POST_COMMIT} hook not installed")
 
     templates_dir = get_templates_dir(git_root)
     if os.path.exists(templates_dir):

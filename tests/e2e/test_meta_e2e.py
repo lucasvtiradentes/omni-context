@@ -6,7 +6,7 @@ import pytest
 from branchctx.commands.on_checkout import cmd_on_checkout
 from branchctx.commands.on_commit import cmd_on_commit
 from branchctx.commands.template import cmd_template
-from branchctx.config import Config, get_branches_dir, get_template_dir
+from branchctx.config import Config, get_branches_dir, get_template_dir, save_base_branch
 from branchctx.constants import HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.git import git_add, git_checkout, git_commit, git_config, git_init
 from branchctx.hooks import install_hook
@@ -35,9 +35,8 @@ def git_repo():
         os.makedirs(branches_dir)
 
         config = Config()
-        config.changed_files.enabled = True
-        config.changed_files.base_branch = "main"
         config.save(tmpdir)
+        save_base_branch(tmpdir, "main")
 
         with open(os.path.join(template_dir, "context.md"), "w") as f:
             f.write("# Context\n<bctx:commits></bctx:commits>\n<bctx:files></bctx:files>")

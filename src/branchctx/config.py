@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass, field
 
 from branchctx.assets import get_default_config
-from branchctx.constants import BRANCHES_DIR, CONFIG_DIR, CONFIG_FILE, TEMPLATES_DIR
+from branchctx.constants import BASE_BRANCH_FILE, BRANCHES_DIR, CONFIG_DIR, CONFIG_FILE, TEMPLATES_DIR
 
 _DEFAULTS: dict | None = None
 
@@ -23,22 +23,16 @@ class TemplateRule:
     template: str
 
 
-def _get_changed_files_defaults() -> dict:
-    return _get_defaults()["changed_files"]
-
-
-@dataclass
-class ChangedFilesConfig:
-    enabled: bool = field(default_factory=lambda: _get_changed_files_defaults()["enabled"])
-    base_branch: str = field(default_factory=lambda: _get_changed_files_defaults()["base_branch"])
-
-
 def _get_default_template_rules() -> list[TemplateRule]:
     return [TemplateRule(prefix=r["prefix"], template=r["template"]) for r in _get_defaults().get("template_rules", [])]
 
 
 def get_default_template() -> str:
     return _get_defaults()["default_template"]
+
+
+def get_default_base_branch() -> str:
+    return _get_defaults()["default_base_branch"]
 
 
 @dataclass
@@ -49,7 +43,6 @@ class Config:
     sound: bool = field(default_factory=lambda: _get_defaults()["sound"])
     sound_file: str | None = None
     template_rules: list[TemplateRule] = field(default_factory=_get_default_template_rules)
-    changed_files: ChangedFilesConfig = field(default_factory=ChangedFilesConfig)
 
     @classmethod
     def load(cls, workspace: str) -> "Config":
@@ -66,13 +59,6 @@ class Config:
 
         defaults = _get_defaults()
 
-        changed_files_data = data.get("changed_files", {})
-        cf_defaults = _get_changed_files_defaults()
-        changed_files_config = ChangedFilesConfig(
-            enabled=changed_files_data.get("enabled", cf_defaults["enabled"]),
-            base_branch=changed_files_data.get("base_branch", cf_defaults["base_branch"]),
-        )
-
         template_rules = [
             TemplateRule(prefix=r["prefix"], template=r["template"]) for r in data.get("template_rules", [])
         ]
@@ -84,7 +70,6 @@ class Config:
             sound=data.get("sound", defaults["sound"]),
             sound_file=data.get("sound_file"),
             template_rules=template_rules,
-            changed_files=changed_files_config,
         )
 
     def save(self, workspace: str):
@@ -95,10 +80,6 @@ class Config:
             "default_template": self.default_template,
             "sound": self.sound,
             "template_rules": [{"prefix": r.prefix, "template": r.template} for r in self.template_rules],
-            "changed_files": {
-                "enabled": self.changed_files.enabled,
-                "base_branch": self.changed_files.base_branch,
-            },
         }
 
         if self.on_switch:
@@ -144,3 +125,21 @@ def list_templates(workspace: str) -> list[str]:
     if not os.path.exists(templates_dir):
         return []
     return [d for d in os.listdir(templates_dir) if os.path.isdir(os.path.join(templates_dir, d))]
+
+
+def get_base_branch_file(workspace: str) -> str:
+    return os.path.join(workspace, CONFIG_DIR, BASE_BRANCH_FILE)
+
+
+def get_base_branch(workspace: str) -> str:
+    file_path = get_base_branch_file(workspace)
+    if os.path.exists(file_path):
+        with open(file_path) as f:
+            return f.read().strip()
+    return get_default_base_branch()
+
+
+def save_base_branch(workspace: str, branch: str):
+    file_path = get_base_branch_file(workspace)
+    with open(file_path, "w") as f:
+        f.write(branch + "\n")

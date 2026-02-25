@@ -4,7 +4,16 @@ import os
 from pathlib import Path
 
 from branchctx.assets import copy_init_templates, get_gitignore
-from branchctx.config import Config, config_exists, get_branches_dir, get_config_dir, get_templates_dir
+from branchctx.config import (
+    Config,
+    config_exists,
+    get_base_branch_file,
+    get_branches_dir,
+    get_config_dir,
+    get_default_base_branch,
+    get_templates_dir,
+    save_base_branch,
+)
 from branchctx.constants import CLI_NAME, CONFIG_FILE, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.hooks import get_current_branch, get_git_root, install_hook
 from branchctx.sync import sync_branch
@@ -34,10 +43,13 @@ def cmd_init(_args: list[str]) -> int:
         with open(os.path.join(config_dir, ".gitignore"), "w") as f:
             f.write(get_gitignore())
 
+        save_base_branch(git_root, get_default_base_branch())
+
         print(f"Initialized: {config_dir}")
         print(f"  config:    {config_dir}/{CONFIG_FILE}")
         print(f"  templates: {templates_dir}/")
         print(f"  branches:  {branches_dir}/ (gitignored)")
+        print(f"  base:      {get_base_branch_file(git_root)} (gitignored)")
 
     checkout_result = install_hook(git_root, HOOK_POST_CHECKOUT)
     if checkout_result == "installed":
@@ -48,14 +60,13 @@ def cmd_init(_args: list[str]) -> int:
     elif checkout_result == "hook_exists":
         print(f"warning: {HOOK_POST_CHECKOUT} hook exists but not managed by {CLI_NAME}")
 
-    config = Config.load(git_root)
-    if config.changed_files.enabled:
-        commit_result = install_hook(git_root, HOOK_POST_COMMIT)
-        if commit_result == "installed":
-            print(f"Hook installed: {HOOK_POST_COMMIT}")
-        elif commit_result == "hook_exists":
-            print(f"warning: {HOOK_POST_COMMIT} hook exists but not managed by {CLI_NAME}")
+    commit_result = install_hook(git_root, HOOK_POST_COMMIT)
+    if commit_result == "installed":
+        print(f"Hook installed: {HOOK_POST_COMMIT}")
+    elif commit_result == "hook_exists":
+        print(f"warning: {HOOK_POST_COMMIT} hook exists but not managed by {CLI_NAME}")
 
+    config = Config.load(git_root)
     _add_to_gitignore(git_root, config.symlink)
 
     branch = get_current_branch(git_root)
