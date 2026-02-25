@@ -114,8 +114,8 @@ def _get_changed_files(workspace: str, base_branch: str) -> str:
         max_path_len = max(len(f[1]) for f in files)
         result_lines = []
         for status, filepath, added, removed in files:
-            padding = " " * (max_path_len - len(filepath))
-            result_lines.append(f"{status}  {filepath}{padding}  (+{added} -{removed})")
+            padded_path = filepath.ljust(max_path_len)
+            result_lines.append(f"{status}  {padded_path}  (+{added} -{removed})")
 
         return "\n".join(result_lines)
     except subprocess.CalledProcessError:
