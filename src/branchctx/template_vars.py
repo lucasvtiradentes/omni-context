@@ -12,7 +12,7 @@ def get_template_variables(branch: str) -> dict[str, str]:
     return {
         "branch": branch,
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "author": git_user_name(),
+        "author": git_user_name() or "",
     }
 
 

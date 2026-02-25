@@ -79,8 +79,8 @@ def git_config_get(key: str, scope: Literal["global"] | None = None, path: str |
         return None
 
 
-def git_user_name(path: str | None = None) -> str:
-    return git_config_get("user.name", path=path) or ""
+def git_user_name(path: str | None = None) -> str | None:
+    return git_config_get("user.name", path=path)
 
 
 def git_config_unset(key: str, scope: Literal["global"] | None = None) -> bool:
