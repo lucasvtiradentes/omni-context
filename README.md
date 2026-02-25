@@ -55,8 +55,8 @@ bctx init                          # initialize + install hook
 bctx status                        # show status and health
 bctx branches list                 # list all branch contexts
 bctx branches prune                # archive orphan contexts
-bctx reset                         # reset context to template
-bctx reset feature                 # reset to specific template
+bctx template                      # select template interactively
+bctx template feature              # apply feature template
 bctx completion zsh                # generate shell completion
 bctx uninstall                     # remove hook
 ```

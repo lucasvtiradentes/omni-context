@@ -28,8 +28,8 @@ Examples:
   {CLI_NAME} status                           # show status and health
   {CLI_NAME} branches list                    # list contexts
   {CLI_NAME} branches prune                   # archive orphan contexts
-  {CLI_NAME} reset                            # reset to auto-detected template
-  {CLI_NAME} reset feature                    # reset to feature template
+  {CLI_NAME} template                         # select template interactively
+  {CLI_NAME} template feature                 # apply feature template
   {CLI_NAME} completion zsh                   # generate zsh completion
 
 Exit codes:

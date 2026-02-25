@@ -30,7 +30,7 @@ _{CLI_NAME}() {{
     }}
 
     case "$words[2]" in
-        reset)
+        template)
             if (( CURRENT == 3 )); then
                 _get_templates
             fi
@@ -66,7 +66,7 @@ def _get_bash_completion() -> str:
     commands="{cmd_names}"
 
     case "$prev" in
-        reset)
+        template)
             git_root="$(git rev-parse --show-toplevel 2>/dev/null)"
             if [[ -n "$git_root" ]]; then
                 templates_dir="$git_root/.branchctx/templates"
@@ -103,8 +103,8 @@ def _get_fish_completion() -> str:
     completion_lines = "\n".join(
         f'complete -c {a} -n "__fish_seen_subcommand_from completion" -a "zsh bash fish"' for a in CLI_ALIASES
     )
-    reset_lines = "\n".join(
-        f'complete -c {a} -n "__fish_seen_subcommand_from reset" -a "(__branchctx_templates)"' for a in CLI_ALIASES
+    template_lines = "\n".join(
+        f'complete -c {a} -n "__fish_seen_subcommand_from template" -a "(__branchctx_templates)"' for a in CLI_ALIASES
     )
 
     return f"""{init_lines}
@@ -123,7 +123,7 @@ function __branchctx_templates
     end
 end
 
-{reset_lines}
+{template_lines}
 """
 
 
