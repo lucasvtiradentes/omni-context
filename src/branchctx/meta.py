@@ -117,14 +117,18 @@ def _get_changed_files(workspace: str, base_branch: str) -> str:
         if not files:
             return ""
 
-        max_path_len = max(len(f[1]) for f in files)
+        def get_display_path(f: tuple) -> str:
+            status, filepath, old_path = f[0], f[1], f[2]
+            if status == "R" and old_path:
+                return f"{filepath}  <-  {old_path}"
+            return filepath
+
+        max_display_len = max(len(get_display_path(f)) for f in files)
         result_lines = []
         for status, filepath, old_path, added, removed in files:
-            padded_path = filepath.ljust(max_path_len)
-            if status == "R" and old_path:
-                result_lines.append(f"{status}  {padded_path}  <-  {old_path}  (+{added} -{removed})")
-            else:
-                result_lines.append(f"{status}  {padded_path}  (+{added} -{removed})")
+            display_path = get_display_path((status, filepath, old_path, added, removed))
+            padded_display = display_path.ljust(max_display_len)
+            result_lines.append(f"{status}  {padded_display}  (+{added} -{removed})")
 
         return "\n".join(result_lines)
     except subprocess.CalledProcessError:
