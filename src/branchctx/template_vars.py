@@ -1,30 +1,18 @@
 from __future__ import annotations
 
 import re
-import subprocess
 from datetime import datetime
 
+from branchctx.git import git_user_name
+
 VAR_PATTERN = re.compile(r"\{\{(\w+)\}\}")
-
-
-def get_git_author() -> str:
-    try:
-        result = subprocess.run(
-            ["git", "config", "user.name"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        return result.stdout.strip()
-    except subprocess.CalledProcessError:
-        return ""
 
 
 def get_template_variables(branch: str) -> dict[str, str]:
     return {
         "branch": branch,
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "author": get_git_author(),
+        "author": git_user_name(),
     }
 
 

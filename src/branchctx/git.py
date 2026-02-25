@@ -70,16 +70,20 @@ def git_root(path: str) -> str | None:
         return None
 
 
-def git_config_get(key: str, scope: Literal["global"] | None = None) -> str | None:
+def git_config_get(key: str, scope: Literal["global"] | None = None, path: str | None = None) -> str | None:
     cmd = ["git", "config"]
     if scope == "global":
         cmd.append("--global")
     cmd.append(key)
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(cmd, cwd=path, capture_output=True, text=True, check=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError:
         return None
+
+
+def git_user_name(path: str | None = None) -> str:
+    return git_config_get("user.name", path=path) or ""
 
 
 def git_config_unset(key: str, scope: Literal["global"] | None = None) -> bool:

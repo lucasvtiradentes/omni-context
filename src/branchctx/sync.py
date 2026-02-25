@@ -18,10 +18,10 @@ from branchctx.constants import (
     DEFAULT_TEMPLATE,
     ENV_BRANCH,
     PACKAGE_NAME,
+    TEMPLATE_FILE_EXTENSIONS,
 )
+from branchctx.meta import archive_branch_meta, create_branch_meta
 from branchctx.template_vars import get_template_variables, render_template_content
-
-TEMPLATE_FILE_EXTENSIONS = (".md", ".txt", ".json", ".yaml", ".yml", ".toml")
 
 
 def get_default_sound_file() -> str | None:
@@ -110,11 +110,13 @@ def create_branch_context(
     workspace: str, branch: str, template: str | None = None
 ) -> Literal["exists", "created_from_template", "created_empty"]:
     branch_dir = get_branch_dir(workspace, branch)
+    branch_key = sanitize_branch_name(branch)
 
     if os.path.exists(branch_dir):
         return "exists"
 
     os.makedirs(branch_dir, exist_ok=True)
+    create_branch_meta(workspace, branch_key, branch)
 
     template_dir = _resolve_template_dir(workspace, branch, template)
 
@@ -233,4 +235,5 @@ def archive_branch(workspace: str, branch_name: str) -> bool:
 
     os.makedirs(archived_dir, exist_ok=True)
     shutil.move(src, dst)
+    archive_branch_meta(workspace, branch_name)
     return True
