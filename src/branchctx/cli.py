@@ -1,8 +1,8 @@
 import sys
 from importlib.metadata import version as pkg_version
 
+from branchctx.cmd_registry import COMMANDS, get_all_command_names, get_command_handler
 from branchctx.constants import CLI_NAME, DIST_NAME
-from branchctx.registry import COMMANDS, get_all_command_names, get_command_handler
 
 
 def print_help():

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from branchctx.cmd_registry import get_public_commands
 from branchctx.constants import CLI_ALIASES, CLI_NAME
-from branchctx.registry import get_public_commands
 
 
 def _get_zsh_completion() -> str:
