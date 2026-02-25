@@ -68,14 +68,14 @@ def _get_commits_since_base(workspace: str, base_branch: str) -> str:
 def _get_changed_files(workspace: str, base_branch: str) -> str:
     try:
         status_result = subprocess.run(
-            ["git", "diff", "--name-status", f"{base_branch}...HEAD"],
+            ["git", "diff", "--name-status", "-M", f"{base_branch}...HEAD"],
             cwd=workspace,
             capture_output=True,
             text=True,
             check=True,
         )
         numstat_result = subprocess.run(
-            ["git", "diff", "--numstat", f"{base_branch}...HEAD"],
+            ["git", "diff", "--numstat", "-M", f"{base_branch}...HEAD"],
             cwd=workspace,
             capture_output=True,
             text=True,
@@ -94,28 +94,37 @@ def _get_changed_files(workspace: str, base_branch: str) -> str:
                 continue
             parts = line.split("\t")
             if len(parts) >= 3:
-                added, removed, filepath = parts[0], parts[1], parts[2]
+                added, removed = parts[0], parts[1]
+                filepath = parts[2] if len(parts) == 3 else parts[3]
                 file_stats[filepath] = (added, removed)
 
-        files: list[tuple[str, str, str, str]] = []
+        files: list[tuple[str, str, str, str, str]] = []
         for line in status_lines:
             if not line:
                 continue
             parts = line.split("\t")
             if len(parts) >= 2:
                 status = parts[0][0]
-                filepath = parts[-1]
-                added, removed = file_stats.get(filepath, ("0", "0"))
-                files.append((status, filepath, added, removed))
+                if status == "R" and len(parts) >= 3:
+                    old_path, new_path = parts[1], parts[2]
+                    added, removed = file_stats.get(new_path, ("0", "0"))
+                    files.append((status, new_path, old_path, added, removed))
+                else:
+                    filepath = parts[-1]
+                    added, removed = file_stats.get(filepath, ("0", "0"))
+                    files.append((status, filepath, "", added, removed))
 
         if not files:
             return ""
 
         max_path_len = max(len(f[1]) for f in files)
         result_lines = []
-        for status, filepath, added, removed in files:
+        for status, filepath, old_path, added, removed in files:
             padded_path = filepath.ljust(max_path_len)
-            result_lines.append(f"{status}  {padded_path}  (+{added} -{removed})")
+            if status == "R" and old_path:
+                result_lines.append(f"{status}  {padded_path}  <-  {old_path}  (+{added} -{removed})")
+            else:
+                result_lines.append(f"{status}  {padded_path}  (+{added} -{removed})")
 
         return "\n".join(result_lines)
     except subprocess.CalledProcessError:
