@@ -10,7 +10,15 @@ from importlib import resources
 from typing import Literal
 
 from branchctx.config import Config, get_branches_dir, get_template_dir
-from branchctx.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_SOUND_FILE, DEFAULT_TEMPLATE, ENV_BRANCH, PACKAGE_NAME
+from branchctx.constants import (
+    ARCHIVED_DIR,
+    BRANCHES_DIR,
+    CONFIG_DIR,
+    DEFAULT_SOUND_FILE,
+    DEFAULT_TEMPLATE,
+    ENV_BRANCH,
+    PACKAGE_NAME,
+)
 from branchctx.template_vars import get_template_variables, render_template_content
 
 TEMPLATE_FILE_EXTENSIONS = (".md", ".txt", ".json", ".yaml", ".yml", ".toml")
@@ -196,5 +204,33 @@ def list_branches(workspace: str) -> list[str]:
         return []
 
     return [
-        d for d in os.listdir(branches_dir) if os.path.isdir(os.path.join(branches_dir, d)) and not d.startswith(".")
+        d
+        for d in os.listdir(branches_dir)
+        if os.path.isdir(os.path.join(branches_dir, d)) and not d.startswith(".") and d != ARCHIVED_DIR
     ]
+
+
+def get_archived_dir(workspace: str) -> str:
+    return os.path.join(get_branches_dir(workspace), ARCHIVED_DIR)
+
+
+def list_archived_branches(workspace: str) -> list[str]:
+    archived_dir = get_archived_dir(workspace)
+    if not os.path.exists(archived_dir):
+        return []
+
+    return [d for d in os.listdir(archived_dir) if os.path.isdir(os.path.join(archived_dir, d))]
+
+
+def archive_branch(workspace: str, branch_name: str) -> bool:
+    branches_dir = get_branches_dir(workspace)
+    archived_dir = get_archived_dir(workspace)
+    src = os.path.join(branches_dir, branch_name)
+    dst = os.path.join(archived_dir, branch_name)
+
+    if not os.path.exists(src):
+        return False
+
+    os.makedirs(archived_dir, exist_ok=True)
+    shutil.move(src, dst)
+    return True

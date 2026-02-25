@@ -15,7 +15,7 @@ COMMANDS: dict[str, CommandInfo] = {
     "init": {"desc": "Initialize and install hook", "args": ""},
     "uninstall": {"desc": "Remove hook from current repo", "args": ""},
     "sync": {"desc": "Sync context for current branch", "args": ""},
-    "branches": {"desc": "List all branch contexts", "args": ""},
+    "branches": {"desc": "Manage branch contexts", "args": "<list|prune>"},
     "status": {"desc": "Show status and health", "args": ""},
     "reset": {"desc": "Reset context to template", "args": "[template]"},
     "completion": {"desc": "Generate shell completion", "args": "<shell>"},
