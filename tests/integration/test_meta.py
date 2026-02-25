@@ -6,6 +6,7 @@ import pytest
 from branchctx.config import Config, get_branches_dir, get_template_dir
 from branchctx.git import git_add, git_checkout, git_commit, git_config, git_init
 from branchctx.meta import (
+    _get_changed_files,
     archive_branch_meta,
     create_branch_meta,
     delete_branch_meta,
@@ -132,3 +133,89 @@ def test_multiple_branches_in_meta(git_repo):
     assert "main" in meta
     assert "feature-a" in meta
     assert "feature-b" in meta
+
+
+def test_get_changed_files_alignment(git_repo):
+    git_checkout(git_repo, "feature/test", create=True)
+
+    with open(os.path.join(git_repo, "short.py"), "w") as f:
+        f.write("x = 1")
+    with open(os.path.join(git_repo, "very_long_filename_here.py"), "w") as f:
+        f.write("y = 2")
+
+    git_add(git_repo)
+    git_commit(git_repo, "add files")
+
+    result = _get_changed_files(git_repo, "main")
+    lines = result.strip().split("\n")
+
+    paren_positions = [line.index("(") for line in lines]
+    assert len(set(paren_positions)) == 1
+
+
+def test_get_changed_files_pure_rename(git_repo):
+    with open(os.path.join(git_repo, "original.py"), "w") as f:
+        f.write("content")
+    git_add(git_repo)
+    git_commit(git_repo, "add original to main")
+
+    git_checkout(git_repo, "feature/rename", create=True)
+
+    os.rename(
+        os.path.join(git_repo, "original.py"),
+        os.path.join(git_repo, "renamed.py"),
+    )
+    git_add(git_repo)
+    git_commit(git_repo, "rename file")
+
+    result = _get_changed_files(git_repo, "main")
+
+    assert "R  renamed.py  <-  original.py" in result
+
+
+def test_get_changed_files_modified_rename_shows_delete_and_add(git_repo):
+    with open(os.path.join(git_repo, "original.py"), "w") as f:
+        f.write("original content here")
+    git_add(git_repo)
+    git_commit(git_repo, "add original to main")
+
+    git_checkout(git_repo, "feature/modified-rename", create=True)
+
+    os.rename(
+        os.path.join(git_repo, "original.py"),
+        os.path.join(git_repo, "renamed.py"),
+    )
+    with open(os.path.join(git_repo, "renamed.py"), "w") as f:
+        f.write("completely different content")
+    git_add(git_repo)
+    git_commit(git_repo, "rename and modify")
+
+    result = _get_changed_files(git_repo, "main")
+
+    assert "D  original.py" in result
+    assert "A  renamed.py" in result
+    assert "<-" not in result
+
+
+def test_get_changed_files_rename_alignment(git_repo):
+    with open(os.path.join(git_repo, "old_name.py"), "w") as f:
+        f.write("content")
+    with open(os.path.join(git_repo, "another.py"), "w") as f:
+        f.write("other")
+    git_add(git_repo)
+    git_commit(git_repo, "add files to main")
+
+    git_checkout(git_repo, "feature/rename-align", create=True)
+
+    os.rename(
+        os.path.join(git_repo, "old_name.py"),
+        os.path.join(git_repo, "new_name.py"),
+    )
+    git_add(git_repo)
+    git_commit(git_repo, "rename")
+
+    result = _get_changed_files(git_repo, "main")
+    lines = result.strip().split("\n")
+
+    paren_positions = [line.index("(") for line in lines]
+    assert len(set(paren_positions)) == 1
