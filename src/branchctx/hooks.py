@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import stat
 import sys
@@ -11,16 +12,18 @@ from branchctx.constants import CLI_NAME, GIT_DIR, HOOK_MARKER, HOOK_POST_CHECKO
 from branchctx.git import git_current_branch, git_hooks_path, git_info_exclude_add, git_root
 
 HookType = Literal["post-checkout", "post-commit"]
-HookInstallResult = Literal["installed", "already_installed", "hook_exists", "skipped"]
+HookInstallResult = Literal["installed", "already_installed", "hook_exists", "appended", "skipped"]
 HookUninstallResult = Literal["uninstalled", "not_installed", "not_managed"]
 
 _custom_hooks_confirmed: dict[str, bool] = {}
 _exclude_confirmed: dict[str, bool] = {}
+_append_confirmed: dict[tuple[str, HookType], bool] = {}
 
 
 def _reset_confirmation_state() -> None:
     _custom_hooks_confirmed.clear()
     _exclude_confirmed.clear()
+    _append_confirmed.clear()
 
 
 def get_branchctx_path() -> str:
@@ -97,6 +100,26 @@ def _get_hook_template(hook_type: HookType) -> str:
     return get_post_commit_hook_template()
 
 
+SNIPPET_END_MARKER = "# branch-ctx-end"
+
+
+def _get_append_snippet(hook_type: HookType) -> str:
+    callback = get_callback(hook_type)
+    if hook_type == HOOK_POST_CHECKOUT:
+        return f"""
+{HOOK_MARKER}
+OLD_BRANCH=$(git rev-parse --abbrev-ref @{{-1}} 2>/dev/null || echo "unknown")
+NEW_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+{callback} "$OLD_BRANCH" "$NEW_BRANCH"
+{SNIPPET_END_MARKER}
+"""
+    return f"""
+{HOOK_MARKER}
+{callback}
+{SNIPPET_END_MARKER}
+"""
+
+
 def install_hook(git_root: str, hook_type: HookType = HOOK_POST_CHECKOUT) -> HookInstallResult:
     global _custom_hooks_confirmed, _exclude_confirmed
 
@@ -129,7 +152,20 @@ def install_hook(git_root: str, hook_type: HookType = HOOK_POST_CHECKOUT) -> Hoo
             existing = f.read()
         if HOOK_MARKER in existing:
             return "already_installed"
-        return "hook_exists"
+
+        append_key = (git_root, hook_type)
+        if append_key not in _append_confirmed:
+            print(f"\nExisting {hook_type} hook detected (not managed by bctx)")
+            do_append = _prompt_yes_no("Append bctx callback to existing hook?")
+            _append_confirmed[append_key] = do_append
+
+        if not _append_confirmed[append_key]:
+            return "hook_exists"
+
+        snippet = _get_append_snippet(hook_type)
+        with open(hook_path, "a") as f:
+            f.write(snippet)
+        return "appended"
 
     template = _get_hook_template(hook_type)
     content = template.format(marker=HOOK_MARKER, callback=get_callback(hook_type))
@@ -147,6 +183,23 @@ def install_hook(git_root: str, hook_type: HookType = HOOK_POST_CHECKOUT) -> Hoo
     return "installed"
 
 
+def _remove_bctx_snippet(content: str) -> str:
+    pattern = rf"\n?{re.escape(HOOK_MARKER)}.*?{re.escape(SNIPPET_END_MARKER)}\n?"
+    return re.sub(pattern, "", content, flags=re.DOTALL)
+
+
+def _is_standalone_bctx_hook(content: str) -> bool:
+    if SNIPPET_END_MARKER in content:
+        cleaned = _remove_bctx_snippet(content)
+        remaining = cleaned.strip()
+        if not remaining:
+            return True
+        lines = [ln for ln in remaining.split("\n") if ln.strip() and not ln.strip().startswith("#!")]
+        return len(lines) == 0
+    lines = content.strip().split("\n")
+    return len(lines) >= 2 and lines[1].strip() == HOOK_MARKER
+
+
 def uninstall_hook(git_root: str, hook_type: HookType = HOOK_POST_CHECKOUT) -> HookUninstallResult:
     for use_custom in [True, False]:
         hook_path = get_hook_path(git_root, hook_type, use_custom=use_custom)
@@ -160,7 +213,17 @@ def uninstall_hook(git_root: str, hook_type: HookType = HOOK_POST_CHECKOUT) -> H
         if HOOK_MARKER not in content:
             continue
 
-        os.remove(hook_path)
+        if _is_standalone_bctx_hook(content):
+            os.remove(hook_path)
+        elif SNIPPET_END_MARKER in content:
+            file_mode = os.stat(hook_path).st_mode
+            cleaned = _remove_bctx_snippet(content)
+            with open(hook_path, "w") as f:
+                f.write(cleaned)
+            os.chmod(hook_path, file_mode)
+        else:
+            os.remove(hook_path)
+
         return "uninstalled"
 
     default_path = get_hook_path(git_root, hook_type, use_custom=False)

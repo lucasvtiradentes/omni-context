@@ -54,6 +54,8 @@ def cmd_init(_args: list[str]) -> int:
     checkout_result = install_hook(git_root, HOOK_POST_CHECKOUT)
     if checkout_result == "installed":
         print(f"Hook installed: {HOOK_POST_CHECKOUT}")
+    elif checkout_result == "appended":
+        print(f"Hook appended: {HOOK_POST_CHECKOUT}")
     elif checkout_result == "already_installed":
         if already_initialized:
             print("Already initialized")
@@ -63,6 +65,8 @@ def cmd_init(_args: list[str]) -> int:
     commit_result = install_hook(git_root, HOOK_POST_COMMIT)
     if commit_result == "installed":
         print(f"Hook installed: {HOOK_POST_COMMIT}")
+    elif commit_result == "appended":
+        print(f"Hook appended: {HOOK_POST_COMMIT}")
     elif commit_result == "hook_exists":
         print(f"warning: {HOOK_POST_COMMIT} hook exists but not managed by {CLI_NAME}")
 
