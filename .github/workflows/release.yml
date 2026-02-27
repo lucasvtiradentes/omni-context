@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install bump2version towncrier hatch
+      - run: pip install bump2version towncrier hatch "virtualenv<20.30"
 
       - name: Configure git
         run: |
