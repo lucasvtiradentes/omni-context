@@ -67,7 +67,7 @@ Alias: `branch-ctx` works too.
 ## Quick Start
 
 ```bash
-pip install bctx
+pip install branch-ctx
 
 cd your-repo
 bctx init      # creates .bctx/ + installs hook
@@ -94,6 +94,7 @@ bctx completion fish | source
 ```
 .bctx/
 ├── config.json
+├── meta.json                # branch metadata (commits, files, timestamps)
 ├── templates/
 │   ├── _default/            # fallback template
 │   │   └── context.md
@@ -103,7 +104,8 @@ bctx completion fish | source
 │   ├── main/
 │   │   └── context.md
 │   └── feature-login/
-│       └── context.md
+│       ├── context.md
+│       └── base_branch      # optional per-branch base override
 └── .gitignore
 
 _branch -> .bctx/branches/main/   # symlink to current
@@ -137,14 +139,24 @@ Per-branch base override: create `_branch/base_branch` with branch name.
 ## Development
 
 ```bash
+make install    # creates venv, installs deps + pre-commit hooks
+make test       # run tests
+make format     # ruff fix + format
+make check      # validate ruff rules
+```
+
+Manual setup:
+
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 pytest -v
 ```
 
+Dev alias:
+
 ```bash
-# dev alias (bctxd)
 ln -sf $(pwd)/.venv/bin/bctx ~/.local/bin/bctxd   # install
 rm ~/.local/bin/bctxd                             # remove
 ```
