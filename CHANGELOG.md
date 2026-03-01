@@ -1,3 +1,15 @@
+## 0.2.1 (2026-03-01)
+
+### Features
+
+- Auto-create base_branch file on branch context creation
+- Enhanced `bctx sync` command now updates meta and context tags
+
+### Misc
+
+- Reorganize branchctx module into core/, data/, utils/ subpackages
+
+
 ## 0.2.0 (2026-03-01)
 
 ### Features
