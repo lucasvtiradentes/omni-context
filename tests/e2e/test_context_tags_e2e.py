@@ -4,7 +4,7 @@ import tempfile
 import pytest
 
 from branchctx.config import Config, get_branches_dir, get_template_dir
-from branchctx.constants import HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
+from branchctx.constants import DEFAULT_SYMLINK, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.context_tags import update_context_tags
 from branchctx.git import git_add, git_checkout, git_commit, git_config, git_init
 from branchctx.hooks import install_hook
@@ -62,8 +62,7 @@ def test_update_tags_on_feature_branch(git_repo):
 
     update_branch_meta(git_repo, branch_key, "main")
 
-    config = Config.load(git_repo)
-    context_dir = os.path.join(git_repo, config.symlink)
+    context_dir = os.path.join(git_repo, DEFAULT_SYMLINK)
 
     updates = update_context_tags(
         workspace=git_repo,
@@ -89,8 +88,7 @@ def test_update_tags_shows_sync_message_on_main(git_repo):
     create_branch_meta(git_repo, branch_key, "main")
     update_branch_meta(git_repo, branch_key, "main")
 
-    config = Config.load(git_repo)
-    context_dir = os.path.join(git_repo, config.symlink)
+    context_dir = os.path.join(git_repo, DEFAULT_SYMLINK)
 
     updates = update_context_tags(
         workspace=git_repo,
@@ -126,8 +124,7 @@ def test_update_tags_multiple_commits(git_repo):
 
     update_branch_meta(git_repo, branch_key, "main")
 
-    config = Config.load(git_repo)
-    context_dir = os.path.join(git_repo, config.symlink)
+    context_dir = os.path.join(git_repo, DEFAULT_SYMLINK)
 
     update_context_tags(
         workspace=git_repo,
@@ -163,8 +160,7 @@ def test_update_tags_shows_stats(git_repo):
 
     update_branch_meta(git_repo, branch_key, "main")
 
-    config = Config.load(git_repo)
-    context_dir = os.path.join(git_repo, config.symlink)
+    context_dir = os.path.join(git_repo, DEFAULT_SYMLINK)
 
     update_context_tags(
         workspace=git_repo,
@@ -188,8 +184,7 @@ def test_no_tags_in_file_skips_silently(git_repo):
     branch_key = sanitize_branch_name("main")
     create_branch_meta(git_repo, branch_key, "main")
 
-    config = Config.load(git_repo)
-    context_dir = os.path.join(git_repo, config.symlink)
+    context_dir = os.path.join(git_repo, DEFAULT_SYMLINK)
     context_file = os.path.join(context_dir, "context.md")
 
     with open(context_file, "w") as f:

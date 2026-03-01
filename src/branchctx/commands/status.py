@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import os
 
-from branchctx.config import Config, config_exists, get_base_branch, get_templates_dir, list_templates
-from branchctx.constants import CLI_NAME, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
+from branchctx.config import config_exists, get_base_branch, get_templates_dir, list_templates
+from branchctx.constants import CLI_NAME, DEFAULT_SYMLINK, DEFAULT_TEMPLATE, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.git import git_config_get, git_list_branches
 from branchctx.hooks import get_current_branch, get_git_root, is_hook_installed
 from branchctx.sync import list_branches, sanitize_branch_name
@@ -26,9 +26,7 @@ def cmd_status(_args: list[str]) -> int:
         return 1
 
     branch = get_current_branch(git_root)
-    config = Config.load(git_root)
-
-    symlink_path = os.path.join(git_root, config.symlink)
+    symlink_path = os.path.join(git_root, DEFAULT_SYMLINK)
     symlink_target = None
     if os.path.islink(symlink_path):
         symlink_target = os.readlink(symlink_path)
@@ -36,9 +34,9 @@ def cmd_status(_args: list[str]) -> int:
     print(f"Repository:  {git_root}")
     print(f"Branch:      {branch}")
     if symlink_target:
-        print(f"Symlink:     {config.symlink} -> {symlink_target}")
+        print(f"Symlink:     {DEFAULT_SYMLINK} -> {symlink_target}")
     else:
-        print(f"Symlink:     {config.symlink} (not set)")
+        print(f"Symlink:     {DEFAULT_SYMLINK} (not set)")
 
     hooks = []
     if is_hook_installed(git_root, HOOK_POST_CHECKOUT):
@@ -83,11 +81,11 @@ def cmd_status(_args: list[str]) -> int:
         issues.append("templates/ missing")
         print(f"  {STATUS_ERROR} templates/ missing")
 
-    if config.default_template in templates:
-        print(f"  {STATUS_OK} {config.default_template} template exists")
+    if DEFAULT_TEMPLATE in templates:
+        print(f"  {STATUS_OK} {DEFAULT_TEMPLATE} template exists")
     else:
-        issues.append(f"{config.default_template} template missing")
-        print(f"  {STATUS_ERROR} {config.default_template} template missing")
+        issues.append(f"{DEFAULT_TEMPLATE} template missing")
+        print(f"  {STATUS_ERROR} {DEFAULT_TEMPLATE} template missing")
 
     if os.path.islink(symlink_path):
         if os.path.exists(os.path.join(git_root, symlink_target)):
@@ -97,7 +95,7 @@ def cmd_status(_args: list[str]) -> int:
             print(f"  {STATUS_ERROR} symlink broken -> {symlink_target}")
     elif os.path.exists(symlink_path):
         issues.append("symlink path exists but is not a symlink")
-        print(f"  {STATUS_ERROR} {config.symlink} is not a symlink")
+        print(f"  {STATUS_ERROR} {DEFAULT_SYMLINK} is not a symlink")
     else:
         warnings.append(f"symlink not set (run '{CLI_NAME} sync')")
         print(f"  {STATUS_WARN} symlink not set")

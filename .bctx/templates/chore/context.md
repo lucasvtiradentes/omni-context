@@ -25,14 +25,6 @@ General improvements, refactors, and bug fixes batch
 
 -
 
-## Blockers
-
--
-
-## Follow-up
-
--
-
 ## Commits
 
 <bctx:commits></bctx:commits>

@@ -15,6 +15,7 @@ from branchctx.constants import (
     BRANCHES_DIR,
     CONFIG_DIR,
     DEFAULT_SOUND_FILE,
+    DEFAULT_SYMLINK,
     ENV_BRANCH,
     PACKAGE_NAME,
     TEMPLATE_FILE_EXTENSIONS,
@@ -148,9 +149,9 @@ def reset_branch_context(
     return "reset"
 
 
-def update_symlink(workspace: str, branch: str, config: Config) -> Literal["unchanged", "error_not_symlink", "updated"]:
+def update_symlink(workspace: str, branch: str) -> Literal["unchanged", "error_not_symlink", "updated"]:
     branch_dir = get_branch_dir(workspace, branch)
-    symlink_path = os.path.join(workspace, config.symlink)
+    symlink_path = os.path.join(workspace, DEFAULT_SYMLINK)
 
     if not os.path.exists(branch_dir):
         create_branch_context(workspace, branch)
@@ -190,7 +191,7 @@ def sync_branch(workspace: str, branch: str) -> dict:
     config = Config.load(workspace)
 
     create_result = create_branch_context(workspace, branch)
-    symlink_result = update_symlink(workspace, branch, config)
+    symlink_result = update_symlink(workspace, branch)
 
     run_on_switch(workspace, branch, config)
 
@@ -202,7 +203,7 @@ def sync_branch(workspace: str, branch: str) -> dict:
         "branch_dir": get_branch_dir(workspace, branch),
         "create_result": create_result,
         "symlink_result": symlink_result,
-        "symlink_path": config.symlink,
+        "symlink_path": DEFAULT_SYMLINK,
     }
 
 

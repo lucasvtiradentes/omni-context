@@ -10,7 +10,6 @@ from branchctx.constants import (
     BRANCHES_DIR,
     CONFIG_DIR,
     CONFIG_FILE,
-    DEFAULT_SYMLINK,
     DEFAULT_TEMPLATE,
     TEMPLATES_DIR,
 )
@@ -49,14 +48,6 @@ class Config:
     sound: bool = field(default_factory=lambda: _get_defaults()["sound"])
     sound_file: str | None = None
     template_rules: list[TemplateRule] = field(default_factory=_get_default_template_rules)
-
-    @property
-    def symlink(self) -> str:
-        return DEFAULT_SYMLINK
-
-    @property
-    def default_template(self) -> str:
-        return DEFAULT_TEMPLATE
 
     @classmethod
     def load(cls, workspace: str) -> "Config":
@@ -105,7 +96,7 @@ class Config:
         for rule in self.template_rules:
             if branch.startswith(rule.prefix):
                 return rule.template
-        return self.default_template
+        return DEFAULT_TEMPLATE
 
 
 def get_config_dir(workspace: str) -> str:

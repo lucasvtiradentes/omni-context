@@ -7,7 +7,7 @@ from branchctx.commands.on_checkout import cmd_on_checkout
 from branchctx.commands.on_commit import cmd_on_commit
 from branchctx.commands.template import cmd_template
 from branchctx.config import Config, get_branches_dir, get_template_dir, save_base_branch
-from branchctx.constants import HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
+from branchctx.constants import DEFAULT_SYMLINK, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.git import git_add, git_checkout, git_commit, git_config, git_init
 from branchctx.hooks import install_hook
 from branchctx.meta import get_branch_meta, load_archived_meta
@@ -100,8 +100,7 @@ def test_on_commit_updates_context_tags(git_repo):
 
     cmd_on_commit([])
 
-    config = Config.load(git_repo)
-    context_file = os.path.join(git_repo, config.symlink, "context.md")
+    context_file = os.path.join(git_repo, DEFAULT_SYMLINK, "context.md")
     with open(context_file) as f:
         content = f.read()
 
@@ -132,8 +131,7 @@ def test_template_preserves_meta_data(git_repo):
     assert meta_after["commits"] == meta_before["commits"]
     assert meta_after["changed_files"] == meta_before["changed_files"]
 
-    config = Config.load(git_repo)
-    context_file = os.path.join(git_repo, config.symlink, "context.md")
+    context_file = os.path.join(git_repo, DEFAULT_SYMLINK, "context.md")
     with open(context_file) as f:
         content = f.read()
 

@@ -14,7 +14,7 @@ from branchctx.config import (
     get_templates_dir,
     save_base_branch,
 )
-from branchctx.constants import CLI_NAME, CONFIG_FILE, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
+from branchctx.constants import CLI_NAME, CONFIG_FILE, DEFAULT_SYMLINK, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.hooks import get_current_branch, get_git_root, install_hook
 from branchctx.sync import sync_branch
 
@@ -70,8 +70,7 @@ def cmd_init(_args: list[str]) -> int:
     elif commit_result == "hook_exists":
         print(f"warning: {HOOK_POST_COMMIT} hook exists but not managed by {CLI_NAME}")
 
-    config = Config.load(git_root)
-    _add_to_gitignore(git_root, config.symlink)
+    _add_to_gitignore(git_root, DEFAULT_SYMLINK)
 
     branch = get_current_branch(git_root)
     if branch:

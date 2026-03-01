@@ -11,7 +11,7 @@ from branchctx.config import (
     get_config_dir,
     get_template_dir,
 )
-from branchctx.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_SYMLINK, DEFAULT_TEMPLATE, TEMPLATES_DIR
+from branchctx.constants import BRANCHES_DIR, CONFIG_DIR, DEFAULT_TEMPLATE, TEMPLATES_DIR
 
 
 @pytest.fixture
@@ -54,7 +54,6 @@ def test_config_exists_true(workspace):
 
 def test_config_default_values():
     config = Config()
-    assert config.symlink == DEFAULT_SYMLINK
     assert config.on_switch is None
 
 
@@ -65,13 +64,11 @@ def test_config_save_and_load(workspace):
     config.save(workspace)
 
     loaded = Config.load(workspace)
-    assert loaded.symlink == DEFAULT_SYMLINK
     assert loaded.on_switch == "echo {branch}"
 
 
 def test_config_load_missing_file(workspace):
     config = Config.load(workspace)
-    assert config.symlink == DEFAULT_SYMLINK
     assert config.on_switch is None
 
 
