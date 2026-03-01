@@ -5,7 +5,13 @@ import os
 from dataclasses import dataclass, field
 
 from branchctx.assets import get_default_config
-from branchctx.constants import BASE_BRANCH_FILE, BRANCHES_DIR, CONFIG_DIR, CONFIG_FILE, TEMPLATES_DIR
+from branchctx.constants import (
+    BRANCHES_DIR,
+    CONFIG_DIR,
+    CONFIG_FILE,
+    DEFAULT_TEMPLATE,
+    TEMPLATES_DIR,
+)
 
 _DEFAULTS: dict | None = None
 
@@ -28,18 +34,11 @@ def _get_default_template_rules() -> list[TemplateRule]:
 
 
 def get_default_template() -> str:
-    return _get_defaults()["default_template"]
-
-
-def get_default_base_branch() -> str:
-    return _get_defaults()["default_base_branch"]
+    return DEFAULT_TEMPLATE
 
 
 @dataclass
 class Config:
-    symlink: str = field(default_factory=lambda: _get_defaults()["symlink"])
-    default_template: str = field(default_factory=get_default_template)
-    on_switch: str | None = field(default_factory=lambda: _get_defaults()["on_switch"])
     sound: bool = field(default_factory=lambda: _get_defaults()["sound"])
     sound_file: str | None = None
     template_rules: list[TemplateRule] = field(default_factory=_get_default_template_rules)
@@ -64,9 +63,6 @@ class Config:
         ]
 
         return cls(
-            symlink=data.get("symlink", defaults["symlink"]),
-            default_template=data.get("default_template", defaults["default_template"]),
-            on_switch=data.get("on_switch"),
             sound=data.get("sound", defaults["sound"]),
             sound_file=data.get("sound_file"),
             template_rules=template_rules,
@@ -76,14 +72,9 @@ class Config:
         config_path = os.path.join(workspace, CONFIG_DIR, CONFIG_FILE)
 
         data = {
-            "symlink": self.symlink,
-            "default_template": self.default_template,
             "sound": self.sound,
             "template_rules": [{"prefix": r.prefix, "template": r.template} for r in self.template_rules],
         }
-
-        if self.on_switch:
-            data["on_switch"] = self.on_switch
 
         if self.sound_file:
             data["sound_file"] = self.sound_file
@@ -95,7 +86,7 @@ class Config:
         for rule in self.template_rules:
             if branch.startswith(rule.prefix):
                 return rule.template
-        return self.default_template
+        return DEFAULT_TEMPLATE
 
 
 def get_config_dir(workspace: str) -> str:
@@ -125,21 +116,3 @@ def list_templates(workspace: str) -> list[str]:
     if not os.path.exists(templates_dir):
         return []
     return [d for d in os.listdir(templates_dir) if os.path.isdir(os.path.join(templates_dir, d))]
-
-
-def get_base_branch_file(workspace: str) -> str:
-    return os.path.join(workspace, CONFIG_DIR, BASE_BRANCH_FILE)
-
-
-def get_base_branch(workspace: str) -> str:
-    file_path = get_base_branch_file(workspace)
-    if os.path.exists(file_path):
-        with open(file_path) as f:
-            return f.read().strip()
-    return get_default_base_branch()
-
-
-def save_base_branch(workspace: str, branch: str):
-    file_path = get_base_branch_file(workspace)
-    with open(file_path, "w") as f:
-        f.write(branch + "\n")

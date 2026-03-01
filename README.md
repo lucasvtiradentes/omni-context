@@ -28,7 +28,7 @@ Git branch context manager - sync context folders across branches automatically.
                        │
                        ▼
 ┌───────────────────────────────────────────┐
-│ _context -> .bctx/branches/feature-login/ │
+│ _branch -> .bctx/branches/feature-login/ │
 └───────────────────────────────────────────┘
 ```
 
@@ -37,7 +37,7 @@ Git branch context manager - sync context folders across branches automatically.
 - branch contexts   - separate folder for each branch
 - auto-sync         - hook syncs on checkout/switch
 - templates         - new branches start from template (per-prefix support)
-- symlink           - `_context/` always points to current branch
+- symlink           - `_branch/` always points to current branch
 - sound             - plays sound on branch switch
 - gitignored        - branch data stays local
 - shell completion  - zsh, bash, fish
@@ -72,7 +72,7 @@ cd your-repo
 bctx init      # creates .bctx/ + installs hook
 
 git checkout -b feature/new   # auto-creates context from template
-cat _context/context.md
+cat _branch/context.md
 ```
 
 ## Shell Completion
@@ -105,7 +105,7 @@ bctx completion fish | source
 │       └── context.md
 └── .gitignore
 
-_context -> .bctx/branches/main/   # symlink to current
+_branch -> .bctx/branches/main/   # symlink to current
 ```
 
 ## Config
@@ -114,8 +114,7 @@ _context -> .bctx/branches/main/   # symlink to current
 
 ```json
 {
-  "symlink": "_context",
-  "on_switch": "echo 'switched to {branch}'",
+  "default_base_branch": "origin/main",
   "sound": true,
   "sound_file": "/path/to/custom.wav",
   "template_rules": [
@@ -125,13 +124,14 @@ _context -> .bctx/branches/main/   # symlink to current
 }
 ```
 
-| Key              | Description                                     |
-|------------------|-------------------------------------------------|
-| `symlink`        | symlink name (default: `_context`)              |
-| `on_switch`      | command to run on branch switch                 |
-| `sound`          | play sound on sync (default: `false`)           |
-| `sound_file`      | custom sound file (default: bundled sound)       |
-| `template_rules` | per-prefix template mapping (fallback: _default) |
+| Key                 | Description                                      |
+|---------------------|--------------------------------------------------|
+| `default_base_branch` | base branch for diff/commits (default: `origin/main`) |
+| `sound`             | play sound on sync (default: `false`)            |
+| `sound_file`        | custom sound file (default: bundled sound)       |
+| `template_rules`    | per-prefix template mapping (fallback: _default) |
+
+Per-branch base override: create `_branch/base_branch` with branch name.
 
 ## Development
 

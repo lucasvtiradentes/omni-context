@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from branchctx.assets import copy_init_templates, get_default_config
+from branchctx.assets import copy_init_templates
 from branchctx.config import Config, TemplateRule, get_branches_dir, get_config_dir, get_templates_dir
-from branchctx.constants import GIT_DIR
+from branchctx.constants import DEFAULT_SYMLINK, GIT_DIR
 from branchctx.sync import (
     branch_context_exists,
     create_branch_context,
@@ -63,22 +63,20 @@ def test_branch_context_exists(workspace):
 
 
 def test_update_symlink(workspace):
-    config = Config.load(workspace)
     create_branch_context(workspace, "main")
 
-    result = update_symlink(workspace, "main", config)
+    result = update_symlink(workspace, "main")
     assert result == "updated"
 
-    symlink_path = os.path.join(workspace, config.symlink)
+    symlink_path = os.path.join(workspace, DEFAULT_SYMLINK)
     assert os.path.islink(symlink_path)
 
 
 def test_update_symlink_unchanged(workspace):
-    config = Config.load(workspace)
     create_branch_context(workspace, "main")
 
-    update_symlink(workspace, "main", config)
-    result = update_symlink(workspace, "main", config)
+    update_symlink(workspace, "main")
+    result = update_symlink(workspace, "main")
     assert result == "unchanged"
 
 
@@ -122,51 +120,47 @@ def test_create_branch_context_no_template(workspace_no_template):
 
 
 def test_update_symlink_error_not_symlink(workspace):
-    config = Config.load(workspace)
     create_branch_context(workspace, "main")
 
-    symlink_path = os.path.join(workspace, config.symlink)
+    symlink_path = os.path.join(workspace, DEFAULT_SYMLINK)
     with open(symlink_path, "w") as f:
         f.write("regular file")
 
-    result = update_symlink(workspace, "main", config)
+    result = update_symlink(workspace, "main")
     assert result == "error_not_symlink"
 
 
 def test_sync_branch(workspace):
-    defaults = get_default_config()
     result = sync_branch(workspace, "feature/test")
 
     assert result["branch"] == "feature/test"
     assert "feature-test" in result["branch_dir"]
     assert result["create_result"] == "created_from_template"
     assert result["symlink_result"] == "updated"
-    assert result["symlink_path"] == defaults["symlink"]
+    assert result["symlink_path"] == DEFAULT_SYMLINK
 
-    symlink_path = os.path.join(workspace, defaults["symlink"])
+    symlink_path = os.path.join(workspace, DEFAULT_SYMLINK)
     assert os.path.islink(symlink_path)
 
 
 def test_symlink_switches_between_branches(workspace):
-    config = Config.load(workspace)
-    symlink_path = os.path.join(workspace, config.symlink)
+    symlink_path = os.path.join(workspace, DEFAULT_SYMLINK)
 
     create_branch_context(workspace, "main")
     create_branch_context(workspace, "feature")
 
-    update_symlink(workspace, "main", config)
+    update_symlink(workspace, "main")
     assert normalize_path(os.readlink(symlink_path)) == get_branch_rel_path("main")
 
-    update_symlink(workspace, "feature", config)
+    update_symlink(workspace, "feature")
     assert normalize_path(os.readlink(symlink_path)) == get_branch_rel_path("feature")
 
-    update_symlink(workspace, "main", config)
+    update_symlink(workspace, "main")
     assert normalize_path(os.readlink(symlink_path)) == get_branch_rel_path("main")
 
 
 def test_branch_content_isolation(workspace):
-    config = Config.load(workspace)
-    symlink_path = os.path.join(workspace, config.symlink)
+    symlink_path = os.path.join(workspace, DEFAULT_SYMLINK)
 
     sync_branch(workspace, "main")
     with open(os.path.join(symlink_path, "context.md"), "w") as f:
@@ -186,8 +180,7 @@ def test_branch_content_isolation(workspace):
 
 
 def test_multiple_branch_switches(workspace):
-    config = Config.load(workspace)
-    symlink_path = os.path.join(workspace, config.symlink)
+    symlink_path = os.path.join(workspace, DEFAULT_SYMLINK)
     branches = ["main", "dev", "feature/a", "feature/b"]
 
     for branch in branches:
