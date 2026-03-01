@@ -1,3 +1,10 @@
+## 0.2.2 (2026-03-01)
+
+### Bug Fixes
+
+- fix: expose sync command in shell completions
+
+
 ## 0.2.1 (2026-03-01)
 
 ### Features
