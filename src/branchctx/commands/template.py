@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import sys
 
-from branchctx.config import config_exists, get_base_branch, list_templates
+from branchctx.branch_base import get_base_branch
+from branchctx.config import config_exists, list_templates
 from branchctx.constants import CLI_NAME
 from branchctx.context_tags import update_context_tags
 from branchctx.hooks import get_current_branch, get_git_root
@@ -77,7 +78,7 @@ def cmd_template(args: list[str]) -> int:
 
     branch_key = sanitize_branch_name(branch)
     context_dir = get_branch_dir(git_root, branch)
-    update_context_tags(git_root, context_dir, branch_key, get_base_branch(git_root))
+    update_context_tags(git_root, context_dir, branch_key, get_base_branch(git_root, context_dir))
 
     print(f"Applied template '{template}' to '{branch}'")
     return 0

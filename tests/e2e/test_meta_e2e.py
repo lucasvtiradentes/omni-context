@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 
@@ -6,7 +7,7 @@ import pytest
 from branchctx.commands.on_checkout import cmd_on_checkout
 from branchctx.commands.on_commit import cmd_on_commit
 from branchctx.commands.template import cmd_template
-from branchctx.config import Config, get_branches_dir, get_template_dir, save_base_branch
+from branchctx.config import get_branches_dir, get_config_dir, get_template_dir
 from branchctx.constants import DEFAULT_SYMLINK, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.git import git_add, git_checkout, git_commit, git_config, git_init
 from branchctx.hooks import install_hook
@@ -31,12 +32,13 @@ def git_repo():
         template_dir = get_template_dir(tmpdir)
         branches_dir = get_branches_dir(tmpdir)
 
+        config_dir = get_config_dir(tmpdir)
         os.makedirs(template_dir)
         os.makedirs(branches_dir)
 
-        config = Config()
-        config.save(tmpdir)
-        save_base_branch(tmpdir, "main")
+        config_data = {"default_base_branch": "main", "sound": False, "template_rules": []}
+        with open(os.path.join(config_dir, "config.json"), "w") as f:
+            json.dump(config_data, f)
 
         with open(os.path.join(template_dir, "context.md"), "w") as f:
             f.write("# Context\n<bctx:commits></bctx:commits>\n<bctx:files></bctx:files>")

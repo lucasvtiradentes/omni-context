@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import os
 
-from branchctx.config import config_exists, get_base_branch, get_templates_dir, list_templates
+from branchctx.branch_base import get_base_branch
+from branchctx.config import config_exists, get_templates_dir, list_templates
 from branchctx.constants import CLI_NAME, DEFAULT_SYMLINK, DEFAULT_TEMPLATE, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.git import git_config_get, git_list_branches
 from branchctx.hooks import get_current_branch, get_git_root, is_hook_installed
-from branchctx.sync import list_branches, sanitize_branch_name
+from branchctx.sync import get_branch_dir, list_branches, sanitize_branch_name
 
 STATUS_OK = "[ok]"
 STATUS_ERROR = "[!!]"
@@ -50,7 +51,8 @@ def cmd_status(_args: list[str]) -> int:
 
     branches = list_branches(git_root)
     print(f"Contexts:    {len(branches)} branches")
-    print(f"Base:        {get_base_branch(git_root)}")
+    branch_dir = get_branch_dir(git_root, branch)
+    print(f"Base:        {get_base_branch(git_root, branch_dir)}")
 
     global_hooks = git_config_get("core.hooksPath", scope="global")
     if global_hooks:

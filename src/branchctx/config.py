@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 
 from branchctx.assets import get_default_config
 from branchctx.constants import (
-    BASE_BRANCH_FILE,
     BRANCHES_DIR,
     CONFIG_DIR,
     CONFIG_FILE,
@@ -36,10 +35,6 @@ def _get_default_template_rules() -> list[TemplateRule]:
 
 def get_default_template() -> str:
     return DEFAULT_TEMPLATE
-
-
-def get_default_base_branch() -> str:
-    return _get_defaults()["default_base_branch"]
 
 
 @dataclass
@@ -121,21 +116,3 @@ def list_templates(workspace: str) -> list[str]:
     if not os.path.exists(templates_dir):
         return []
     return [d for d in os.listdir(templates_dir) if os.path.isdir(os.path.join(templates_dir, d))]
-
-
-def get_base_branch_file(workspace: str) -> str:
-    return os.path.join(workspace, CONFIG_DIR, BASE_BRANCH_FILE)
-
-
-def get_base_branch(workspace: str) -> str:
-    file_path = get_base_branch_file(workspace)
-    if os.path.exists(file_path):
-        with open(file_path) as f:
-            return f.read().strip()
-    return get_default_base_branch()
-
-
-def save_base_branch(workspace: str, branch: str):
-    file_path = get_base_branch_file(workspace)
-    with open(file_path, "w") as f:
-        f.write(branch + "\n")

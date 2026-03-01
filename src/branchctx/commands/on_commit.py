@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import os
 
-from branchctx.config import config_exists, get_base_branch
+from branchctx.branch_base import get_base_branch
+from branchctx.config import config_exists
 from branchctx.constants import DEFAULT_SYMLINK
 from branchctx.context_tags import update_context_tags
 from branchctx.hooks import get_current_branch, get_git_root
@@ -23,12 +24,12 @@ def cmd_on_commit(_args: list[str]) -> int:
         return 0
 
     branch_key = sanitize_branch_name(branch)
-    base_branch = get_base_branch(git_root)
-    update_branch_meta(git_root, branch_key, base_branch)
-
     context_dir = os.path.join(git_root, DEFAULT_SYMLINK)
     if not os.path.exists(context_dir):
         return 0
+
+    base_branch = get_base_branch(git_root, context_dir)
+    update_branch_meta(git_root, branch_key, base_branch)
 
     updates = update_context_tags(
         workspace=git_root,

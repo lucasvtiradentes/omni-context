@@ -7,12 +7,9 @@ from branchctx.assets import copy_init_templates, get_gitignore
 from branchctx.config import (
     Config,
     config_exists,
-    get_base_branch_file,
     get_branches_dir,
     get_config_dir,
-    get_default_base_branch,
     get_templates_dir,
-    save_base_branch,
 )
 from branchctx.constants import CLI_NAME, CONFIG_FILE, DEFAULT_SYMLINK, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.hooks import get_current_branch, get_git_root, install_hook
@@ -43,13 +40,10 @@ def cmd_init(_args: list[str]) -> int:
         with open(os.path.join(config_dir, ".gitignore"), "w") as f:
             f.write(get_gitignore())
 
-        save_base_branch(git_root, get_default_base_branch())
-
         print(f"Initialized: {config_dir}")
         print(f"  config:    {config_dir}/{CONFIG_FILE}")
         print(f"  templates: {templates_dir}/")
         print(f"  branches:  {branches_dir}/ (gitignored)")
-        print(f"  base:      {get_base_branch_file(git_root)} (gitignored)")
 
     checkout_result = install_hook(git_root, HOOK_POST_CHECKOUT)
     if checkout_result == "installed":
