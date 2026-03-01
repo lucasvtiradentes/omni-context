@@ -16,7 +16,7 @@ TEMPLATES_DIR = "templates"
 BRANCHES_DIR = "branches"
 ARCHIVED_DIR = "_archived"
 
-DEFAULT_SYMLINK = "_context"
+DEFAULT_SYMLINK = "_branch"
 DEFAULT_TEMPLATE = "_default"
 DEFAULT_BASE_BRANCH = "origin/main"
 

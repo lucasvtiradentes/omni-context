@@ -5,7 +5,7 @@ dist/
 build/
 .venv/
 .ignore
-_context
+_branch
 .bctx/branches/
 **/.DS_Store
 CLAUDE.local.md
