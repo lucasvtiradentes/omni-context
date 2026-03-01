@@ -1,3 +1,17 @@
+## 0.2.0 (2026-03-01)
+
+### Features
+
+- Per-branch base_branch override via `_branch/base_branch` file
+- Shell completion for `branches` subcommands (list, prune)
+
+### Misc
+
+- Remove `symlink`/`default_template` from config, use constants directly
+- Remove unused `on_switch` feature
+- Rename symlink from `_context` to `_branch`
+
+
 ## 0.1.10 (2026-02-27)
 
 No significant changes.
