@@ -5,9 +5,8 @@ from pathlib import Path
 import pytest
 
 from branchctx.assets import copy_init_templates
-from branchctx.config import Config, TemplateRule, get_branches_dir, get_config_dir, get_templates_dir
-from branchctx.constants import DEFAULT_SYMLINK, GIT_DIR
-from branchctx.sync import (
+from branchctx.constants import BASE_BRANCH_FILE, DEFAULT_SYMLINK, GIT_DIR
+from branchctx.core.sync import (
     branch_context_exists,
     create_branch_context,
     get_branch_dir,
@@ -17,6 +16,7 @@ from branchctx.sync import (
     sync_branch,
     update_symlink,
 )
+from branchctx.data.config import Config, TemplateRule, get_branches_dir, get_config_dir, get_templates_dir
 from tests.utils import normalize_path
 
 
@@ -116,7 +116,7 @@ def test_create_branch_context_no_template(workspace_no_template):
 
     branch_dir = get_branch_dir(workspace_no_template, "main")
     assert os.path.exists(branch_dir)
-    assert os.listdir(branch_dir) == []
+    assert os.listdir(branch_dir) == [BASE_BRANCH_FILE]
 
 
 def test_update_symlink_error_not_symlink(workspace):
