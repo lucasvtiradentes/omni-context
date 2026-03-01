@@ -54,22 +54,20 @@ def test_config_exists_true(workspace):
 
 def test_config_default_values():
     config = Config()
-    assert config.on_switch is None
+    assert config.sound is False
 
 
 def test_config_save_and_load(workspace):
-    config = Config(
-        on_switch="echo {branch}",
-    )
+    config = Config(sound=True)
     config.save(workspace)
 
     loaded = Config.load(workspace)
-    assert loaded.on_switch == "echo {branch}"
+    assert loaded.sound is True
 
 
 def test_config_load_missing_file(workspace):
     config = Config.load(workspace)
-    assert config.on_switch is None
+    assert config.sound is False
 
 
 def test_config_template_rules(workspace):

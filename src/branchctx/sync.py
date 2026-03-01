@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import platform
 import re
-import shlex
 import shutil
 import subprocess
 from importlib import resources
@@ -16,7 +15,6 @@ from branchctx.constants import (
     CONFIG_DIR,
     DEFAULT_SOUND_FILE,
     DEFAULT_SYMLINK,
-    ENV_BRANCH,
     PACKAGE_NAME,
     TEMPLATE_FILE_EXTENSIONS,
 )
@@ -170,30 +168,11 @@ def update_symlink(workspace: str, branch: str) -> Literal["unchanged", "error_n
     return "updated"
 
 
-def run_on_switch(workspace: str, branch: str, config: Config):
-    if not config.on_switch:
-        return
-
-    cmd = config.on_switch.replace("{branch}", shlex.quote(branch))
-
-    try:
-        subprocess.run(
-            cmd,
-            shell=True,
-            cwd=workspace,
-            env={**os.environ, ENV_BRANCH: branch},
-        )
-    except OSError:
-        pass
-
-
 def sync_branch(workspace: str, branch: str) -> dict:
     config = Config.load(workspace)
 
     create_result = create_branch_context(workspace, branch)
     symlink_result = update_symlink(workspace, branch)
-
-    run_on_switch(workspace, branch, config)
 
     if config.sound:
         play_sound(config.sound_file)

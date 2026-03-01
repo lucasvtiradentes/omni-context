@@ -44,7 +44,6 @@ def get_default_base_branch() -> str:
 
 @dataclass
 class Config:
-    on_switch: str | None = field(default_factory=lambda: _get_defaults()["on_switch"])
     sound: bool = field(default_factory=lambda: _get_defaults()["sound"])
     sound_file: str | None = None
     template_rules: list[TemplateRule] = field(default_factory=_get_default_template_rules)
@@ -69,7 +68,6 @@ class Config:
         ]
 
         return cls(
-            on_switch=data.get("on_switch"),
             sound=data.get("sound", defaults["sound"]),
             sound_file=data.get("sound_file"),
             template_rules=template_rules,
@@ -82,9 +80,6 @@ class Config:
             "sound": self.sound,
             "template_rules": [{"prefix": r.prefix, "template": r.template} for r in self.template_rules],
         }
-
-        if self.on_switch:
-            data["on_switch"] = self.on_switch
 
         if self.sound_file:
             data["sound_file"] = self.sound_file
