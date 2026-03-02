@@ -1,3 +1,8 @@
+## 0.2.3 (2026-03-02)
+
+No significant changes.
+
+
 ## 0.2.2 (2026-03-01)
 
 ### Bug Fixes
