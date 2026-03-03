@@ -6,7 +6,7 @@
     ".claude": true,
     ".devpanel": true,
     ".github": false,
-    ".ignore": true,
+    // ".ignore": true,
     ".pytest_cache": true,
     ".ruff_cache": true,
     ".venv": true,
