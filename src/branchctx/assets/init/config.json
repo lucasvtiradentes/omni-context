@@ -1,6 +1,6 @@
 {
   "default_base_branch": "origin/main",
-  "sound": false,
+  "sound": true,
   "template_rules": [
     {"prefix": "feature/", "template": "feature"}
   ]
