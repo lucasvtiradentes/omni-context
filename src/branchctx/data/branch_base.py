@@ -30,10 +30,3 @@ def save_base_branch(branch_dir: str, base: str):
     file_path = os.path.join(branch_dir, BASE_BRANCH_FILE)
     with open(file_path, "w") as f:
         f.write(base + "\n")
-
-
-def init_base_branch(workspace: str, branch_dir: str):
-    file_path = os.path.join(branch_dir, BASE_BRANCH_FILE)
-    if not os.path.exists(file_path):
-        default = _get_config_default_base_branch(workspace)
-        save_base_branch(branch_dir, default)
