@@ -1,20 +1,22 @@
-# Feature: {{branch}}
+# Branch: {{branch}}
 
 Created: {{date}} by {{author}}
 
-## Description
+## Summary
 
-What is this feature about?
+What and why, in one line.
 
-## Decisions
-
--
-
-## Implementation
+## Key Files
 
 -
 
-## Testing
+## Notes
+
+Decisions, constraints, gotchas — anything useful for context.
+
+-
+
+## References
 
 -
 

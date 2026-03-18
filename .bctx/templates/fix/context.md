@@ -1,20 +1,24 @@
-# Fix: {{branch}}
+# Bug: {{branch}}
 
 Created: {{date}} by {{author}}
 
-## Bug
+## Problem
 
-What is the problem?
+What's broken and how to reproduce.
 
-## Cause
+## Root Cause
 
-What was causing it?
+Why it happens (fill after investigation).
 
 ## Fix
 
-How was it fixed?
+What was changed and why this approach.
 
-## Testing
+## Key Files
+
+-
+
+## References
 
 -
 

@@ -1,27 +1,20 @@
-# Branch: {{branch}}
+# Chore: {{branch}}
 
 Created: {{date}} by {{author}}
 
-## Goal
-
-General improvements, refactors, and bug fixes batch
-
 ## Summary
 
-(one-liner when done, useful for PR description)
+One-liner: what and why.
 
 ## Changes
 
-### Fixes
 -
 
-### Features
+## Key Files
+
 -
 
-### Refactors
--
-
-## Decisions
+## References
 
 -
 
