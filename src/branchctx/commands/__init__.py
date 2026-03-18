@@ -1,3 +1,4 @@
+from branchctx.commands.base import cmd_base
 from branchctx.commands.branches import cmd_branches
 from branchctx.commands.completion import cmd_completion
 from branchctx.commands.init import cmd_init
@@ -9,6 +10,7 @@ from branchctx.commands.template import cmd_template
 from branchctx.commands.uninstall import cmd_uninstall
 
 __all__ = [
+    "cmd_base",
     "cmd_init",
     "cmd_uninstall",
     "cmd_sync",

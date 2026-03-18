@@ -107,6 +107,8 @@ bctx status                        # show status and health
 bctx branches list                 # list all branch contexts
 bctx branches prune                # archive orphan contexts
 bctx template                      # select template interactively
+bctx base                          # show current base branch
+bctx base origin/develop           # set base branch
 bctx template feature              # apply feature template
 bctx completion zsh                # generate shell completion
 bctx uninstall                     # remove hook
@@ -166,11 +168,11 @@ _branch -> .bctx/branches/main/   # symlink to current
 | Key                   | Description                                           |
 |-----------------------|-------------------------------------------------------|
 | `default_base_branch` | base branch for diff/commits (default: `origin/main`) |
-| `sound`               | play sound on sync (default: `false`)                 |
+| `sound`               | play sound on sync (default: `true`)                  |
 | `sound_file`          | custom sound file (default: bundled sound)            |
 | `template_rules`      | per-prefix template mapping (fallback: _default)      |
 
-Per-branch base override: create `_branch/base_branch` with branch name.
+Per-branch base override: `bctx base <branch-name>`
 
 </div>
 </details>

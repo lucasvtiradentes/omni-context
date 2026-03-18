@@ -1,22 +1,35 @@
-# Branch: {{branch}}
+---
+branch: {{branch}}
+created: {{date}}
+author: {{author}}
+---
 
-Created: {{date}} by {{author}}
+<!--
+  This file tracks branch context for AI coding agents (e.g. Claude Code).
+  DO NOT remove this comment or the frontmatter above.
 
-## Goal
+  Sections:
+  - Description: short description of what this branch does and why
+  - Key Paths: important files and folders involved
+  - Notes: findings, gotchas, decisions, or anything worth remembering
+  - References: links to issues, PRs, docs, or discussions
+  - Tasks: work items, mark [x] when done. Add sub-bullets for details.
+  - Commits / Changed Files: auto-managed by git hooks, never edit manually
+-->
 
-What is the objective of this branch?
+## Description
 
-## Status
+-
 
-- [ ] In progress
-- [ ] Ready for review
-- [ ] Merged
+## Key Paths
+
+-
 
 ## Notes
 
 -
 
-## Decisions
+## References
 
 -
 

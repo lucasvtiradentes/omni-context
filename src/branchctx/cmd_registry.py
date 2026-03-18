@@ -9,6 +9,7 @@ class CommandInfo(TypedDict):
 
 
 COMMANDS: dict[str, CommandInfo] = {
+    "base": {"desc": "Show or set base branch", "args": "[branch]"},
     "init": {"desc": "Initialize and install hook", "args": ""},
     "uninstall": {"desc": "Remove hook from current repo", "args": ""},
     "sync": {"desc": "Sync context and update meta/tags", "args": ""},
@@ -25,6 +26,7 @@ _ALL_COMMANDS: set[str] = set(COMMANDS.keys()) | INTERNAL_COMMANDS
 
 def get_command_handler(name: str) -> Callable[[list[str]], int]:
     from branchctx.commands import (
+        cmd_base,
         cmd_branches,
         cmd_completion,
         cmd_init,
@@ -37,6 +39,7 @@ def get_command_handler(name: str) -> Callable[[list[str]], int]:
     )
 
     handlers: dict[str, Callable[[list[str]], int]] = {
+        "base": cmd_base,
         "init": cmd_init,
         "uninstall": cmd_uninstall,
         "sync": cmd_sync,

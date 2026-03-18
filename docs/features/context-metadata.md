@@ -127,16 +127,11 @@ Default base branch resolved from:
 
 ### Per-Branch Override
 
-Create file in context directory:
-
-```
-.bctx/branches/feature-auth/base_branch
+```bash
+bctx base develop
 ```
 
-Contents:
-```
-develop
-```
+This creates `{context}/base_branch` file with the given branch name.
 
 ### Resolution Flow
 
