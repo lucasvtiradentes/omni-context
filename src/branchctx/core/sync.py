@@ -140,9 +140,6 @@ def reset_branch_context(
     if not template_dir:
         return "template_not_found"
 
-    if os.path.exists(branch_dir):
-        shutil.rmtree(branch_dir)
-
     os.makedirs(branch_dir, exist_ok=True)
     _copy_template_to_branch(template_dir, branch_dir, branch)
 
