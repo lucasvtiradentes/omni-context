@@ -205,7 +205,7 @@ def test_create_branch_context_with_template_rules(workspace):
     with open(os.path.join(branch_dir, "context.md")) as f:
         content = f.read()
     assert "## Description" in content
-    assert "## Plan" in content
+    assert "## Decisions" in content
 
 
 def test_reset_branch_context(workspace):

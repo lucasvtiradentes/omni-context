@@ -13,8 +13,9 @@ author: {{author}}
   - Root Cause: why it happens (fill after investigation)
   - Fix: what was changed and why this approach
   - Key Paths: important files and folders involved
+  - Notes: findings, gotchas, decisions, or anything worth remembering
   - References: links to issues, PRs, docs, or discussions
-  - Tasks: checklist of work items, mark [x] when done
+  - Tasks: work items, mark [x] when done. Add sub-bullets for details.
   - Commits / Changed Files: auto-managed by git hooks, never edit manually
 -->
 
@@ -31,6 +32,10 @@ author: {{author}}
 -
 
 ## Key Paths
+
+-
+
+## Notes
 
 -
 

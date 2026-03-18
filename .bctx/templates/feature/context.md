@@ -14,8 +14,9 @@ author: {{author}}
   - Constraints: limitations, requirements, or gotchas
   - Key Paths: important files and folders involved
   - Out of Scope: what NOT to touch or change
+  - Notes: findings, gotchas, decisions, or anything worth remembering
   - References: links to issues, PRs, docs, or discussions
-  - Plan: ordered steps to complete, mark [x] when done
+  - Tasks: work items, mark [x] when done. Add sub-bullets for details.
   - Current Status: what's done, in progress, or blocked
   - Commits / Changed Files: auto-managed by git hooks, never edit manually
 -->
@@ -40,11 +41,15 @@ author: {{author}}
 
 -
 
+## Notes
+
+-
+
 ## References
 
 -
 
-## Plan
+## Tasks
 
 - [ ]
 
