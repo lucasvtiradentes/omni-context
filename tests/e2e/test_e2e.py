@@ -13,7 +13,7 @@ from tests.utils import normalize_path
 
 @pytest.fixture
 def git_repo():
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
         git_init(tmpdir, "main")
         git_config(tmpdir, "user.email", "test@test.com")
         git_config(tmpdir, "user.name", "Test")
