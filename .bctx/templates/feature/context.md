@@ -1,50 +1,56 @@
-# Feature: {{branch}}
+---
+branch: {{branch}}
+created: {{date}}
+author: {{author}}
+---
 
-Created: {{date}} by {{author}}
+<!--
+  This file tracks branch context for AI coding agents (e.g. Claude Code).
+  DO NOT remove this comment or the frontmatter above.
 
-## Summary
+  Sections:
+  - Description: short description of what this feature does and why
+  - Decisions: key choices, tradeoffs, what was ruled out and why
+  - Constraints: limitations, requirements, or gotchas
+  - Key Paths: important files and folders involved
+  - Out of Scope: what NOT to touch or change
+  - References: links to issues, PRs, docs, or discussions
+  - Plan: ordered steps to complete, mark [x] when done
+  - Current Status: what's done, in progress, or blocked
+  - Commits / Changed Files: auto-managed by git hooks, never edit manually
+-->
 
-One-liner: what and why.
+## Description
+
+-
 
 ## Decisions
-
-Key choices made (approach, tradeoffs, what we ruled out and why).
 
 -
 
 ## Constraints
 
-Limitations, requirements, or gotchas that affect implementation.
-
 -
 
-## Key Files
-
-Paths central to this feature and their role.
+## Key Paths
 
 -
 
 ## Out of Scope
 
-What NOT to touch or change in this feature.
-
 -
 
 ## References
-
-Links to issues, PRs, docs, design specs, or discussions.
 
 -
 
 ## Plan
 
-Ordered steps to complete the feature. Reference files/folders when relevant.
-
 - [ ]
 
 ## Current Status
 
-What's done, what's in progress, what's blocked.
+-
 
 ## Commits
 

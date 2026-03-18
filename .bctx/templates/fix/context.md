@@ -1,20 +1,36 @@
-# Bug: {{branch}}
+---
+branch: {{branch}}
+created: {{date}}
+author: {{author}}
+---
 
-Created: {{date}} by {{author}}
+<!--
+  This file tracks branch context for AI coding agents (e.g. Claude Code).
+  DO NOT remove this comment or the frontmatter above.
+
+  Sections:
+  - Problem: what's broken and how to reproduce
+  - Root Cause: why it happens (fill after investigation)
+  - Fix: what was changed and why this approach
+  - Key Paths: important files and folders involved
+  - References: links to issues, PRs, docs, or discussions
+  - Tasks: checklist of work items, mark [x] when done
+  - Commits / Changed Files: auto-managed by git hooks, never edit manually
+-->
 
 ## Problem
 
-What's broken and how to reproduce.
+-
 
 ## Root Cause
 
-Why it happens (fill after investigation).
+-
 
 ## Fix
 
-What was changed and why this approach.
+-
 
-## Key Files
+## Key Paths
 
 -
 
