@@ -1,1 +1,0 @@
-Improved all templates with YAML frontmatter, HTML comment guide, consistent sections (Description, Key Paths, References, Tasks), and added fix/chore bundled templates. Sound enabled by default on init. Removed auto-creation of base_branch file.

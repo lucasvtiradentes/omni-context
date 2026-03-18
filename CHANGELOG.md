@@ -1,3 +1,18 @@
+## 0.2.4 (2026-03-18)
+
+### Features
+
+- Added `bctx base` command to show or set the base branch for the current context.
+
+### Bug Fixes
+
+- Fixed `bctx template` destroying extra files and folders in the branch context directory.
+
+### Misc
+
+- Improved all templates with YAML frontmatter, HTML comment guide, consistent sections (Description, Key Paths, References, Tasks), and added fix/chore bundled templates. Sound enabled by default on init. Removed auto-creation of base_branch file.
+
+
 ## 0.2.3 (2026-03-02)
 
 No significant changes.
