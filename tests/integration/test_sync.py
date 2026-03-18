@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from branchctx.assets import copy_init_templates
-from branchctx.constants import BASE_BRANCH_FILE, DEFAULT_SYMLINK, GIT_DIR
+from branchctx.constants import DEFAULT_SYMLINK, GIT_DIR
 from branchctx.core.sync import (
     branch_context_exists,
     create_branch_context,
@@ -116,7 +116,7 @@ def test_create_branch_context_no_template(workspace_no_template):
 
     branch_dir = get_branch_dir(workspace_no_template, "main")
     assert os.path.exists(branch_dir)
-    assert os.listdir(branch_dir) == [BASE_BRANCH_FILE]
+    assert os.listdir(branch_dir) == []
 
 
 def test_update_symlink_error_not_symlink(workspace):
@@ -204,7 +204,8 @@ def test_create_branch_context_with_template_rules(workspace):
     branch_dir = get_branch_dir(workspace, "feature/login")
     with open(os.path.join(branch_dir, "context.md")) as f:
         content = f.read()
-    assert "Feature:" in content
+    assert "## Description" in content
+    assert "## Plan" in content
 
 
 def test_reset_branch_context(workspace):
@@ -219,8 +220,28 @@ def test_reset_branch_context(workspace):
 
     with open(os.path.join(branch_dir, "context.md")) as f:
         content = f.read()
-    assert "# Branch: main" in content
+    assert "branch:" in content
     assert "MODIFIED CONTENT" not in content
+
+
+def test_reset_branch_context_preserves_extra_files(workspace):
+    create_branch_context(workspace, "main")
+    branch_dir = get_branch_dir(workspace, "main")
+
+    extra_file = os.path.join(branch_dir, "notes.md")
+    with open(extra_file, "w") as f:
+        f.write("my notes")
+
+    extra_dir = os.path.join(branch_dir, "attachments")
+    os.makedirs(extra_dir)
+    with open(os.path.join(extra_dir, "diagram.png"), "w") as f:
+        f.write("fake png")
+
+    result = reset_branch_context(workspace, "main")
+    assert result == "reset"
+
+    assert os.path.exists(extra_file)
+    assert os.path.exists(os.path.join(extra_dir, "diagram.png"))
 
 
 def test_reset_branch_context_with_specific_template(workspace):
@@ -232,4 +253,4 @@ def test_reset_branch_context_with_specific_template(workspace):
     branch_dir = get_branch_dir(workspace, "main")
     with open(os.path.join(branch_dir, "context.md")) as f:
         content = f.read()
-    assert "Feature:" in content
+    assert "## Description" in content

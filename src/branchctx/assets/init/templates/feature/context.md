@@ -1,34 +1,56 @@
-# Feature: {{branch}}
+---
+branch: {{branch}}
+created: {{date}}
+author: {{author}}
+---
 
-Created: {{date}} by {{author}}
+<!--
+  This file tracks branch context for AI coding agents (e.g. Claude Code).
+  DO NOT remove this comment or the frontmatter above.
 
-## Problem
+  Sections:
+  - Description: short description of what this feature does and why
+  - Decisions: key choices, tradeoffs, what was ruled out and why
+  - Constraints: limitations, requirements, or gotchas
+  - Key Paths: important files and folders involved
+  - Out of Scope: what NOT to touch or change
+  - References: links to issues, PRs, docs, or discussions
+  - Plan: ordered steps to complete, mark [x] when done
+  - Current Status: what's done, in progress, or blocked
+  - Commits / Changed Files: auto-managed by git hooks, never edit manually
+-->
 
-What problem does this feature solve?
-
-## Solution
-
-How will it be implemented?
-
-## Acceptance Criteria
-
-- [ ]
-- [ ]
-
-## Status
-
-- [ ] Design
-- [ ] Implementation
-- [ ] Testing
-- [ ] Review
-
-## Dependencies
+## Description
 
 -
 
-## Tasks
+## Decisions
+
+-
+
+## Constraints
+
+-
+
+## Key Paths
+
+-
+
+## Out of Scope
+
+-
+
+## References
+
+-
+
+## Plan
 
 - [ ]
+
+## Current Status
+
+-
 
 ## Commits
 

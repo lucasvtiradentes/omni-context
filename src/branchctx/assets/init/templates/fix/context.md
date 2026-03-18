@@ -9,19 +9,24 @@ author: {{author}}
   DO NOT remove this comment or the frontmatter above.
 
   Sections:
-  - Description: short description of what this branch does and why
-  - Changes: list of changes made in this branch
+  - Problem: what's broken and how to reproduce
+  - Root Cause: why it happens (fill after investigation)
+  - Fix: what was changed and why this approach
   - Key Paths: important files and folders involved
   - References: links to issues, PRs, docs, or discussions
   - Tasks: checklist of work items, mark [x] when done
   - Commits / Changed Files: auto-managed by git hooks, never edit manually
 -->
 
-## Description
+## Problem
 
 -
 
-## Changes
+## Root Cause
+
+-
+
+## Fix
 
 -
 

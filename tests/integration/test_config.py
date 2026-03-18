@@ -54,7 +54,7 @@ def test_config_exists_true(workspace):
 
 def test_config_default_values():
     config = Config()
-    assert config.sound is False
+    assert config.sound is True
 
 
 def test_config_save_and_load(workspace):
@@ -67,7 +67,7 @@ def test_config_save_and_load(workspace):
 
 def test_config_load_missing_file(workspace):
     config = Config.load(workspace)
-    assert config.sound is False
+    assert config.sound is True
 
 
 def test_config_template_rules(workspace):

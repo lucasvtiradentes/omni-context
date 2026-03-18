@@ -36,6 +36,7 @@ pip install branch-ctx
 │  bctx sync         Manually sync current branch context      │
 │  bctx status       Show status and health check              │
 │  bctx branches     List/prune branch contexts                │
+│  bctx base         Show or set base branch                   │
 │  bctx template     Apply template to current context         │
 │  bctx completion   Generate shell completions                │
 │  bctx uninstall    Remove git hooks                          │
