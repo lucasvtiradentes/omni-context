@@ -9,8 +9,9 @@ from branchctx.core.sync import (
     sanitize_branch_name,
 )
 from branchctx.data.config import config_exists
-from branchctx.utils.color import green, red
-from branchctx.utils.git import git_list_branches, git_list_remote_branches
+from branchctx.utils.color import green, red, yellow
+from branchctx.utils.git import git_delete_branch, git_list_branches, git_list_remote_branches
+from branchctx.utils.prompt import multi_select
 
 
 def _print_help():
@@ -51,16 +52,15 @@ def cmd_branches(args: list[str]) -> int:
         return 1
 
 
-def _cmd_list(git_root: str) -> int:
+def _collect_branch_info(git_root: str) -> dict[str, dict]:
     context_dirs = set(list_branches(git_root))
     local_branches = git_list_branches(git_root)
     remote_branches = set(git_list_remote_branches(git_root))
-    current = get_current_branch(git_root)
 
     local_to_sanitized = {b: sanitize_branch_name(b) for b in local_branches}
     sanitized_to_local = {v: k for k, v in local_to_sanitized.items()}
 
-    all_names: dict[str, dict[str, bool]] = {}
+    all_names: dict[str, dict] = {}
 
     for ctx in context_dirs:
         original = sanitized_to_local.get(ctx, ctx)
@@ -68,6 +68,7 @@ def _cmd_list(git_root: str) -> int:
             "context": True,
             "local": ctx in {sanitize_branch_name(b) for b in local_branches},
             "remote": original in remote_branches,
+            "sanitized": ctx,
         }
 
     for branch in local_branches:
@@ -78,11 +79,15 @@ def _cmd_list(git_root: str) -> int:
                     "context": False,
                     "local": True,
                     "remote": branch in remote_branches,
+                    "sanitized": sanitized,
                 }
 
+    return all_names
+
+
+def _print_table(all_names: dict[str, dict], current: str | None) -> None:
     if not all_names:
-        print("No branch contexts yet")
-        return 0
+        return
 
     group_all = []
     group_ctx_local = []
@@ -108,7 +113,6 @@ def _cmd_list(git_root: str) -> int:
     yes = green("✓")
     no = red("✗")
 
-    print(f"Branch contexts ({len(all_names)}):\n")
     print(f"    {'Branch':<{col_w}}  Context  Local  Remote")
     print(f"    {'─' * col_w}  ───────  ─────  ──────")
 
@@ -123,6 +127,18 @@ def _cmd_list(git_root: str) -> int:
             remote = yes if info["remote"] else no
             print(f"  {marker} {name:<{col_w}}     {ctx}       {local}      {remote}")
 
+
+def _cmd_list(git_root: str) -> int:
+    all_names = _collect_branch_info(git_root)
+    current = get_current_branch(git_root)
+
+    if not all_names:
+        print("No branch contexts yet")
+        return 0
+
+    print(f"Branch contexts ({len(all_names)}):\n")
+    _print_table(all_names, current)
+
     archived = list_archived_branches(git_root)
     if archived:
         print(f"\nArchived: {len(archived)}")
@@ -130,21 +146,89 @@ def _cmd_list(git_root: str) -> int:
     return 0
 
 
+def _confirm(prompt: str) -> bool:
+    try:
+        answer = input(f"{prompt} [y/N] ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return False
+    return answer in ("y", "yes")
+
+
 def _cmd_prune(git_root: str) -> int:
-    branches = list_branches(git_root)
-    git_branches = git_list_branches(git_root)
-    git_branches_sanitized = {sanitize_branch_name(b) for b in git_branches}
+    all_names = _collect_branch_info(git_root)
+    current = get_current_branch(git_root)
+    current_sanitized = sanitize_branch_name(current) if current else None
 
-    orphans = set(branches) - git_branches_sanitized
+    no_local = [
+        n for n, i in all_names.items() if i["context"] and not i["local"] and i["sanitized"] != current_sanitized
+    ]
+    no_remote = [
+        n
+        for n, i in all_names.items()
+        if i["context"] and i["local"] and not i["remote"] and i["sanitized"] != current_sanitized
+    ]
 
-    if not orphans:
-        print("No orphan contexts to prune")
+    if not no_local and not no_remote:
+        print("Nothing to prune")
         return 0
 
-    print(f"Archiving {len(orphans)} orphan contexts:\n")
-    for orphan in sorted(orphans):
-        if archive_branch(git_root, orphan):
-            print(f"  {orphan}")
+    print(f"Branch contexts ({len(all_names)}):\n")
+    _print_table(all_names, current)
+
+    to_archive: list[str] = []
+
+    if no_local:
+        print(f"\n{len(no_local)} context(s) without {yellow('local branch')}:")
+        for n in sorted(no_local):
+            print(f"    {n}")
+        if _confirm(f"\nArchive these {len(no_local)} context(s)?"):
+            to_archive.extend(no_local)
+
+    if no_remote:
+        print(f"\n{len(no_remote)} context(s) without {yellow('remote branch')}:")
+        for n in sorted(no_remote):
+            print(f"    {n}")
+        if _confirm(f"\nArchive these {len(no_remote)} context(s)?"):
+            to_archive.extend(no_remote)
+
+    deletable = [
+        n
+        for n, i in all_names.items()
+        if i["local"] and i["sanitized"] != current_sanitized and n not in ("main", "master")
+    ]
+
+    to_delete: list[str] = []
+    if deletable:
+        print(f"\nSelect {yellow('local branches')} to delete:")
+        labels = []
+        for n in sorted(deletable):
+            remote_status = green("remote: ✓") if all_names[n]["remote"] else red("remote: ✗")
+            labels.append(f"{n}  {remote_status}")
+        selected = multi_select(sorted(deletable), labels)
+        to_delete = [sorted(deletable)[i] for i in selected]
+
+    if not to_archive and not to_delete:
+        print("\nNothing to do.")
+        return 0
+
+    if to_archive:
+        print(f"\nArchiving {len(to_archive)} context(s):\n")
+        for name in sorted(to_archive):
+            sanitized = all_names[name]["sanitized"]
+            if archive_branch(git_root, sanitized):
+                print(f"  {name}")
+
+    if to_delete:
+        print(f"\nDeleting {len(to_delete)} local branch(es):\n")
+        for name in sorted(to_delete):
+            if git_delete_branch(git_root, name):
+                print(f"  {name}")
+            else:
+                if git_delete_branch(git_root, name, force=True):
+                    print(f"  {name} (force)")
+                else:
+                    print(f"  {name} (failed)")
 
     print(f"\nDone. Use '{CLI_NAME} branches list' to see current contexts.")
     return 0

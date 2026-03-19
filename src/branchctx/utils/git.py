@@ -95,6 +95,21 @@ def git_config_unset(key: str, scope: Literal["global"] | None = None) -> bool:
         return False
 
 
+def git_delete_branch(path: str, branch: str, force: bool = False) -> bool:
+    flag = "-D" if force else "-d"
+    try:
+        subprocess.run(
+            ["git", "branch", flag, branch],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
 def git_list_branches(path: str) -> list[str]:
     try:
         result = subprocess.run(
