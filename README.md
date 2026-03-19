@@ -160,7 +160,10 @@ _branch -> .bctx/branches/main/   # symlink to current
   "sound_file": "/path/to/custom.wav",
   "template_rules": [
     {"prefix": "feature/", "template": "feature"},
-    {"prefix": "bugfix/", "template": "bugfix"}
+    {"prefix": "fix/", "template": "fix"},
+    {"prefix": "bugfix/", "template": "fix"},
+    {"prefix": "chore/", "template": "chore"},
+    {"prefix": "refactor/", "template": "chore"}
   ]
 }
 ```
