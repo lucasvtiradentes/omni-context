@@ -35,7 +35,11 @@ Creates:
 ├── templates/
 │   ├── _default/
 │   │   └── context.md
-│   └── feature/
+│   ├── chore/
+│   │   └── context.md
+│   ├── feature/
+│   │   └── context.md
+│   └── fix/
 │       └── context.md
 └── branches/
     └── main/
@@ -87,6 +91,7 @@ Templates stored in `.bctx/templates/`:
 | _default | Fallback for all branches |
 | feature  | For feature/* branches    |
 | fix      | For fix/* branches        |
+| chore    | For chore/* branches      |
 | (custom) | User-defined templates    |
 
 ### Template Rules
@@ -98,7 +103,7 @@ Configure in `.bctx/config.json`:
   "template_rules": [
     {"prefix": "feature/", "template": "feature"},
     {"prefix": "fix/", "template": "fix"},
-    {"prefix": "hotfix/", "template": "fix"}
+    {"prefix": "chore/", "template": "chore"}
   ]
 }
 ```

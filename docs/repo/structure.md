@@ -26,6 +26,7 @@ branch-context/
 │   │   ├── status.py       Show status and health
 │   │   ├── branches.py     List/prune contexts
 │   │   ├── template.py     Apply template to context
+│   │   ├── base.py         Get/set base branch
 │   │   ├── completion.py   Generate shell completions
 │   │   ├── on_checkout.py  Post-checkout hook handler
 │   │   ├── on_commit.py    Post-commit hook handler

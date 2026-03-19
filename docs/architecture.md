@@ -161,12 +161,12 @@ CLI dispatcher (`cli.py`) routes commands via `cmd_registry`:
 
 ### Git Queries (utils/git.py)
 
-| Function             | Git Command                 | Returns              |
-|----------------------|-----------------------------|----------------------|
-| git_root()           | rev-parse --show-toplevel   | repo root path       |
-| git_current_branch() | rev-parse --abbrev-ref HEAD | branch name          |
-| git_list_branches()  | branch --format=short       | list of branch names |
-| git_hooks_path()     | config core.hooksPath       | custom hooks dir     |
+| Function             | Git Command                      | Returns              |
+|----------------------|----------------------------------|----------------------|
+| git_root()           | rev-parse --show-toplevel        | repo root path       |
+| git_current_branch() | rev-parse --abbrev-ref HEAD      | branch name          |
+| git_list_branches()  | branch --format=%(refname:short) | list of branch names |
+| git_hooks_path()     | config core.hooksPath            | custom hooks dir     |
 
 ## Template System
 
@@ -211,6 +211,7 @@ cli.py
               ├── status.py      → core/hooks.py, data/config.py
               ├── branches.py    → core/sync.py
               ├── template.py    → core/sync.py, core/context_tags.py
+              ├── base.py        → core/hooks.py, core/sync.py, data/branch_base.py, data/config.py
               ├── on_checkout.py → core/sync.py, core/context_tags.py
               ├── on_commit.py   → core/context_tags.py, data/meta.py
               ├── completion.py  → cmd_registry.py
@@ -218,7 +219,7 @@ cli.py
 
 core/
   ├── hooks.py        → utils/git.py
-  ├── sync.py         → data/config.py, data/meta.py, data/branch_base.py, utils/template.py
+  ├── sync.py         → data/config.py, data/meta.py, utils/template.py
   └── context_tags.py → data/meta.py
 
 data/
