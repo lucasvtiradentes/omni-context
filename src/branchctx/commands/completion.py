@@ -1,17 +1,28 @@
 from __future__ import annotations
 
+import os
+import re
+import sys
+
 from branchctx.cmd_registry import get_public_commands
-from branchctx.constants import CLI_ALIASES, CLI_NAME
 
 
-def _get_zsh_completion() -> str:
+def _get_prog_name() -> str:
+    return os.path.basename(sys.argv[0])
+
+
+def _safe_func_name(prog: str) -> str:
+    return re.sub(r"[^a-zA-Z0-9]", "_", prog)
+
+
+def _get_zsh_completion(prog: str) -> str:
     commands = get_public_commands()
     cmd_lines = "\n        ".join(f"'{name}:{info['desc']}'" for name, info in commands.items())
-    aliases_str = " ".join(CLI_ALIASES)
+    func = _safe_func_name(prog)
 
-    return f"""#compdef {CLI_NAME}
+    return f"""#compdef {prog}
 
-_{CLI_NAME}() {{
+_{func}() {{
     local -a commands
     local git_root templates_dir
 
@@ -48,17 +59,16 @@ _{CLI_NAME}() {{
     esac
 }}
 
-compdef _{CLI_NAME} {aliases_str}
+compdef _{func} {prog}
 """
 
 
-def _get_bash_completion() -> str:
+def _get_bash_completion(prog: str) -> str:
     commands = get_public_commands()
     cmd_names = " ".join(commands.keys())
-    complete_lines = "\n".join(f"complete -F _{CLI_NAME} {alias}" for alias in CLI_ALIASES)
-    case_aliases = "|".join(CLI_ALIASES)
+    func = _safe_func_name(prog)
 
-    return f'''_{CLI_NAME}() {{
+    return f'''_{func}() {{
     local cur prev commands git_root templates_dir
     COMPREPLY=()
     cur="${{COMP_WORDS[COMP_CWORD]}}"
@@ -80,33 +90,29 @@ def _get_bash_completion() -> str:
             COMPREPLY=( $(compgen -W "zsh bash fish" -- "$cur") )
             return 0
             ;;
-        {case_aliases})
+        {prog})
             COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
             return 0
             ;;
     esac
 }}
 
-{complete_lines}
+complete -F _{func} {prog}
 '''
 
 
-def _get_fish_completion() -> str:
+def _get_fish_completion(prog: str) -> str:
     commands = get_public_commands()
 
     cmd_lines = "\n".join(
-        "\n".join(f'complete -c {a} -n "__fish_use_subcommand" -a {name} -d "{info["desc"]}"' for a in CLI_ALIASES)
+        f'complete -c {prog} -n "__fish_use_subcommand" -a {name} -d "{info["desc"]}"'
         for name, info in commands.items()
     )
 
-    init_lines = "\n".join(f"complete -c {a} -f" for a in CLI_ALIASES)
-    completion_lines = "\n".join(
-        f'complete -c {a} -n "__fish_seen_subcommand_from completion" -a "zsh bash fish"' for a in CLI_ALIASES
-    )
-    template_lines = "\n".join(
-        f'complete -c {a} -n "__fish_seen_subcommand_from template" -a "(__branchctx_templates)"' for a in CLI_ALIASES
-    )
-    return f"""{init_lines}
+    completion_lines = f'complete -c {prog} -n "__fish_seen_subcommand_from completion" -a "zsh bash fish"'
+    template_lines = f'complete -c {prog} -n "__fish_seen_subcommand_from template" -a "(__branchctx_templates)"'
+
+    return f"""complete -c {prog} -f
 
 {cmd_lines}
 
@@ -127,14 +133,16 @@ end
 
 
 def cmd_completion(args: list[str]) -> int:
+    prog = _get_prog_name()
+
     if not args:
-        print(f"usage: {CLI_NAME} completion <shell>")
+        print(f"usage: {prog} completion <shell>")
         print("shells: zsh, bash, fish")
         print()
         print("Add to your shell config:")
-        print(f'  zsh:  eval "$({CLI_NAME} completion zsh)"')
-        print(f'  bash: eval "$({CLI_NAME} completion bash)"')
-        print(f"  fish: {CLI_NAME} completion fish | source")
+        print(f'  zsh:  eval "$({prog} completion zsh)"')
+        print(f'  bash: eval "$({prog} completion bash)"')
+        print(f"  fish: {prog} completion fish | source")
         return 1
 
     shell = args[0].lower()
@@ -150,5 +158,5 @@ def cmd_completion(args: list[str]) -> int:
         print("supported: zsh, bash, fish")
         return 1
 
-    print(generators[shell]())
+    print(generators[shell](prog))
     return 0
