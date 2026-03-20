@@ -4,6 +4,8 @@
   "template_rules": [
     {"prefix": "feature/", "template": "feature"},
     {"prefix": "fix/", "template": "fix"},
-    {"prefix": "chore/", "template": "chore"}
+    {"prefix": "bugfix/", "template": "fix"},
+    {"prefix": "chore/", "template": "chore"},
+    {"prefix": "refactor/", "template": "chore"}
   ]
 }

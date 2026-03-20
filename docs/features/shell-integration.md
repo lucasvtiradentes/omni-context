@@ -48,7 +48,6 @@ bctx completion fish | source
 |-------------------------|--------------------------------|
 | `bctx <tab>`            | All available commands         |
 | `bctx template <tab>`   | Templates from .bctx/templates |
-| `bctx branches <tab>`   | list, prune                    |
 | `bctx completion <tab>` | zsh, bash, fish                |
 
 ## Git Hooks

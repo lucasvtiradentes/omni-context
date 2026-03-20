@@ -2,16 +2,17 @@ from __future__ import annotations
 
 import os
 
+from branchctx.commands._branches import collect_branch_info, print_table
 from branchctx.constants import CLI_NAME, DEFAULT_SYMLINK, DEFAULT_TEMPLATE, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.core.hooks import get_current_branch, get_git_root, is_hook_installed
-from branchctx.core.sync import get_branch_dir, list_branches, sanitize_branch_name
+from branchctx.core.sync import get_branch_dir, list_archived_branches
 from branchctx.data.branch_base import get_base_branch
 from branchctx.data.config import config_exists, get_templates_dir, list_templates
-from branchctx.utils.git import git_config_get, git_list_branches
+from branchctx.utils.color import green, red, yellow
 
-STATUS_OK = "[ok]"
-STATUS_ERROR = "[!!]"
-STATUS_WARN = "[--]"
+STATUS_OK = green("[ok]")
+STATUS_ERROR = red("[!!]")
+STATUS_WARN = yellow("[--]")
 
 
 def cmd_status(_args: list[str]) -> int:
@@ -32,45 +33,30 @@ def cmd_status(_args: list[str]) -> int:
     if os.path.islink(symlink_path):
         symlink_target = os.readlink(symlink_path)
 
-    print(f"Repository:  {git_root}")
     print(f"Branch:      {branch}")
-    if symlink_target:
-        print(f"Symlink:     {DEFAULT_SYMLINK} -> {symlink_target}")
-    else:
-        print(f"Symlink:     {DEFAULT_SYMLINK} (not set)")
-
-    hooks = []
-    if is_hook_installed(git_root, HOOK_POST_CHECKOUT):
-        hooks.append(HOOK_POST_CHECKOUT)
-    if is_hook_installed(git_root, HOOK_POST_COMMIT):
-        hooks.append(HOOK_POST_COMMIT)
-    print(f"Hooks:       {', '.join(hooks) if hooks else 'none'}")
-
-    templates = list_templates(git_root)
-    print(f"Templates:   {', '.join(templates) if templates else 'none'}")
-
-    branches = list_branches(git_root)
-    print(f"Contexts:    {len(branches)} branches")
     branch_dir = get_branch_dir(git_root, branch)
     print(f"Base:        {get_base_branch(git_root, branch_dir)}")
 
-    global_hooks = git_config_get("core.hooksPath", scope="global")
-    if global_hooks:
-        print(f"Global:      {global_hooks}")
+    templates = list_templates(git_root)
+    print(f"Templates:   {', '.join(sorted(templates)) if templates else 'none'}")
+
+    has_checkout_hook = is_hook_installed(git_root, HOOK_POST_CHECKOUT)
+    has_commit_hook = is_hook_installed(git_root, HOOK_POST_COMMIT)
+
+    all_names = collect_branch_info(git_root)
 
     print()
     print("Health:")
 
     issues = []
-    warnings = []
 
-    if is_hook_installed(git_root, HOOK_POST_CHECKOUT):
+    if has_checkout_hook:
         print(f"  {STATUS_OK} {HOOK_POST_CHECKOUT} hook installed")
     else:
         issues.append(f"{HOOK_POST_CHECKOUT} hook not installed")
         print(f"  {STATUS_ERROR} {HOOK_POST_CHECKOUT} hook not installed")
 
-    if is_hook_installed(git_root, HOOK_POST_COMMIT):
+    if has_commit_hook:
         print(f"  {STATUS_OK} {HOOK_POST_COMMIT} hook installed")
     else:
         issues.append(f"{HOOK_POST_COMMIT} hook not installed")
@@ -99,19 +85,21 @@ def cmd_status(_args: list[str]) -> int:
         issues.append("symlink path exists but is not a symlink")
         print(f"  {STATUS_ERROR} {DEFAULT_SYMLINK} is not a symlink")
     else:
-        warnings.append(f"symlink not set (run '{CLI_NAME} sync')")
         print(f"  {STATUS_WARN} symlink not set")
 
-    git_branches = git_list_branches(git_root)
-    git_branches_sanitized = {sanitize_branch_name(b) for b in git_branches}
-    context_branches = set(list_branches(git_root))
-
-    orphans = context_branches - git_branches_sanitized
+    orphans = [n for n, i in all_names.items() if i.context and not i.local]
     if orphans:
-        warnings.append(f"{len(orphans)} orphan contexts")
         print(f"  {STATUS_WARN} {len(orphans)} orphan contexts")
     else:
         print(f"  {STATUS_OK} no orphan contexts")
+
+    if all_names:
+        context_count = sum(1 for i in all_names.values() if i.context)
+        archived = list_archived_branches(git_root)
+        archived_count = len(archived) if archived else 0
+
+        print(f"\nBranches ({context_count} contexts, {archived_count} archived):\n")
+        print_table(all_names, branch)
 
     if issues:
         return 1

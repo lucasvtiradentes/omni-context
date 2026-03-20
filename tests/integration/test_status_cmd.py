@@ -57,11 +57,11 @@ def test_status_not_initialized(capsys):
             os.chdir(original_cwd)
 
 
-def test_status_shows_repository(git_repo, capsys):
+def test_status_shows_branch_and_base(git_repo, capsys):
     cmd_status([])
     captured = capsys.readouterr()
-    assert "Repository:" in captured.out
-    assert git_repo in captured.out
+    assert "Branch:" in captured.out
+    assert "Base:" in captured.out
 
 
 def test_status_shows_branch(git_repo, capsys):
@@ -71,10 +71,10 @@ def test_status_shows_branch(git_repo, capsys):
     assert "main" in captured.out
 
 
-def test_status_shows_hooks_none(git_repo, capsys):
+def test_status_shows_health_hooks(git_repo, capsys):
     cmd_status([])
     captured = capsys.readouterr()
-    assert "Hooks:" in captured.out
+    assert "hook" in captured.out
 
 
 def test_status_shows_hooks_installed(git_repo, capsys):
@@ -95,8 +95,7 @@ def test_status_shows_contexts_count(git_repo, capsys):
     sync_branch(git_repo, "main")
     cmd_status([])
     captured = capsys.readouterr()
-    assert "Contexts:" in captured.out
-    assert "1 branches" in captured.out
+    assert "1 contexts" in captured.out
 
 
 def test_status_shows_health_section(git_repo, capsys):
@@ -111,16 +110,14 @@ def test_status_shows_health_section(git_repo, capsys):
 def test_status_shows_symlink_not_set(git_repo, capsys):
     cmd_status([])
     captured = capsys.readouterr()
-    assert "Symlink:" in captured.out
-    assert "not set" in captured.out
+    assert "symlink not set" in captured.out
 
 
 def test_status_shows_symlink_valid(git_repo, capsys):
     sync_branch(git_repo, "main")
     cmd_status([])
     captured = capsys.readouterr()
-    assert "Symlink:" in captured.out
-    assert "->" in captured.out
+    assert "symlink valid" in captured.out
 
 
 def test_status_returns_error_when_hook_missing(git_repo, capsys):

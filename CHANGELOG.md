@@ -1,3 +1,28 @@
+## 0.3.1 (2026-03-20)
+
+### Bug Fixes
+
+- Fix prune requiring two runs to fully clean up: reorder to delete branches before archiving orphans, and fix remote branch detection for orphan contexts.
+
+
+## 0.3.0 (2026-03-20)
+
+### Features
+
+- Interactive multi-step `bctx prune` workflow: archive contexts without local/remote branch, then select local branches to delete via arrow-key multi-select.
+- Shell completion now derives function name from binary name (sys.argv[0]), so `bctx`, `bctxd`, and `branch-ctx` each get independent completions without conflicts.
+- Show branch status table (context/local/remote) in `bctx status` with color-coded indicators and grouping by availability level.
+
+### Bug Fixes
+
+- Add fallback numbered-list selector when `termios` is unavailable (Windows) or stdin is not a TTY.
+
+### Misc
+
+- Remove `bctx branches` subcommand. Branch list merged into `bctx status`. Prune promoted to top-level `bctx prune`.
+- Update default templates to "Guidelines" format. Add missing template_rules (bugfix/, refactor/) to default config. Untrack .bctx/ from git.
+
+
 ## 0.2.4 (2026-03-18)
 
 ### Features
