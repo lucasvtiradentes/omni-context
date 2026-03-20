@@ -8,11 +8,12 @@ from branchctx.core.hooks import get_current_branch, get_git_root, is_hook_insta
 from branchctx.core.sync import get_branch_dir, list_archived_branches
 from branchctx.data.branch_base import get_base_branch
 from branchctx.data.config import config_exists, get_templates_dir, list_templates
+from branchctx.utils.color import green, red, yellow
 from branchctx.utils.git import git_config_get
 
-STATUS_OK = "[ok]"
-STATUS_ERROR = "[!!]"
-STATUS_WARN = "[--]"
+STATUS_OK = green("[ok]")
+STATUS_ERROR = red("[!!]")
+STATUS_WARN = yellow("[--]")
 
 
 def cmd_status(_args: list[str]) -> int:
