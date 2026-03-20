@@ -29,15 +29,12 @@ def cmd_prune(_args: list[str]) -> int:
     current_sanitized = sanitize_branch_name(current) if current else None
 
     no_local = [n for n, i in all_names.items() if i.context and not i.local and i.sanitized != current_sanitized]
-    no_remote = [
-        n for n, i in all_names.items() if i.context and i.local and not i.remote and i.sanitized != current_sanitized
-    ]
 
     deletable = [
         n for n, i in all_names.items() if i.local and i.sanitized != current_sanitized and n not in ("main", "master")
     ]
 
-    if not no_local and not no_remote and not deletable:
+    if not no_local and not deletable:
         print("Nothing to prune")
         return 0
 
@@ -47,22 +44,6 @@ def cmd_prune(_args: list[str]) -> int:
     archived = list_archived_branches(git_root)
     if archived:
         print(f"\nArchived: {len(archived)}")
-
-    to_archive: list[str] = []
-
-    if no_local:
-        print(f"\n{len(no_local)} context(s) without {yellow('local branch')}:")
-        for n in sorted(no_local):
-            print(f"    {n}")
-        if confirm(f"\nArchive these {len(no_local)} context(s)?"):
-            to_archive.extend(no_local)
-
-    if no_remote:
-        print(f"\n{len(no_remote)} context(s) without {yellow('remote branch')}:")
-        for n in sorted(no_remote):
-            print(f"    {n}")
-        if confirm(f"\nArchive these {len(no_remote)} context(s)?"):
-            to_archive.extend(no_remote)
 
     to_delete: list[str] = []
     if deletable:
@@ -75,7 +56,30 @@ def cmd_prune(_args: list[str]) -> int:
         selected = multi_select(deletable_sorted, labels)
         to_delete = [deletable_sorted[i] for i in selected]
 
-    if not to_archive and not to_delete:
+    deleted: list[str] = []
+    if to_delete:
+        print(f"\nDeleting {len(to_delete)} local branch(es):\n")
+        for name in sorted(to_delete):
+            if git_delete_branch(git_root, name):
+                print(f"  {name}")
+                deleted.append(name)
+            else:
+                print(f"  {name} (not fully merged, skipped)")
+
+    for name in deleted:
+        info = all_names[name]
+        if info.context and name not in no_local:
+            no_local.append(name)
+
+    to_archive: list[str] = []
+    if no_local:
+        print(f"\n{len(no_local)} context(s) without {yellow('local branch')}:")
+        for n in sorted(no_local):
+            print(f"    {n}")
+        if confirm(f"\nArchive these {len(no_local)} context(s)?"):
+            to_archive.extend(no_local)
+
+    if not to_archive and not deleted:
         print("\nNothing to do.")
         return 0
 
@@ -85,14 +89,6 @@ def cmd_prune(_args: list[str]) -> int:
             sanitized = all_names[name].sanitized
             if archive_branch(git_root, sanitized):
                 print(f"  {name}")
-
-    if to_delete:
-        print(f"\nDeleting {len(to_delete)} local branch(es):\n")
-        for name in sorted(to_delete):
-            if git_delete_branch(git_root, name):
-                print(f"  {name}")
-            else:
-                print(f"  {name} (not fully merged, skipped)")
 
     print(f"\nDone. Use '{CLI_NAME} status' to see current contexts.")
     return 0
