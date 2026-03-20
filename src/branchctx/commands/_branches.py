@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import NamedTuple
+
 from branchctx.core.sync import (
     list_branches,
     sanitize_branch_name,
@@ -8,7 +10,14 @@ from branchctx.utils.color import green, red
 from branchctx.utils.git import git_list_branches, git_list_remote_branches
 
 
-def collect_branch_info(git_root: str) -> dict[str, dict]:
+class BranchInfo(NamedTuple):
+    context: bool
+    local: bool
+    remote: bool
+    sanitized: str
+
+
+def collect_branch_info(git_root: str) -> dict[str, BranchInfo]:
     context_dirs = set(list_branches(git_root))
     local_branches = git_list_branches(git_root)
     remote_branches = set(git_list_remote_branches(git_root))
@@ -16,32 +25,32 @@ def collect_branch_info(git_root: str) -> dict[str, dict]:
     local_to_sanitized = {b: sanitize_branch_name(b) for b in local_branches}
     sanitized_to_local = {v: k for k, v in local_to_sanitized.items()}
 
-    all_names: dict[str, dict] = {}
+    all_names: dict[str, BranchInfo] = {}
 
     for ctx in context_dirs:
         original = sanitized_to_local.get(ctx, ctx)
-        all_names[original] = {
-            "context": True,
-            "local": ctx in sanitized_to_local,
-            "remote": original in remote_branches,
-            "sanitized": ctx,
-        }
+        all_names[original] = BranchInfo(
+            context=True,
+            local=ctx in sanitized_to_local,
+            remote=original in remote_branches,
+            sanitized=ctx,
+        )
 
     for branch in local_branches:
         if branch not in all_names:
             sanitized = sanitize_branch_name(branch)
             if sanitized not in context_dirs:
-                all_names[branch] = {
-                    "context": False,
-                    "local": True,
-                    "remote": branch in remote_branches,
-                    "sanitized": sanitized,
-                }
+                all_names[branch] = BranchInfo(
+                    context=False,
+                    local=True,
+                    remote=branch in remote_branches,
+                    sanitized=sanitized,
+                )
 
     return all_names
 
 
-def print_table(all_names: dict[str, dict], current: str | None) -> None:
+def print_table(all_names: dict[str, BranchInfo], current: str | None) -> None:
     if not all_names:
         return
 
@@ -50,9 +59,9 @@ def print_table(all_names: dict[str, dict], current: str | None) -> None:
     group_ctx_only = []
 
     for name, info in all_names.items():
-        if info["context"] and info["local"] and info["remote"]:
+        if info.context and info.local and info.remote:
             group_all.append(name)
-        elif info["context"] and info["local"]:
+        elif info.context and info.local:
             group_ctx_local.append(name)
         else:
             group_ctx_only.append(name)
@@ -78,7 +87,7 @@ def print_table(all_names: dict[str, dict], current: str | None) -> None:
         for name in group:
             info = all_names[name]
             marker = "*" if current and name == current else " "
-            ctx = yes if info["context"] else no
-            local = yes if info["local"] else no
-            remote = yes if info["remote"] else no
+            ctx = yes if info.context else no
+            local = yes if info.local else no
+            remote = yes if info.remote else no
             print(f"  {marker} {name:<{col_w}}     {ctx}       {local}      {remote}")

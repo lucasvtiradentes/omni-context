@@ -52,7 +52,7 @@ def cmd_status(_args: list[str]) -> int:
     print(f"Templates:   {', '.join(templates) if templates else 'none'}")
 
     all_names = collect_branch_info(git_root)
-    context_count = sum(1 for i in all_names.values() if i["context"])
+    context_count = sum(1 for i in all_names.values() if i.context)
     print(f"Contexts:    {context_count} branches")
     branch_dir = get_branch_dir(git_root, branch)
     print(f"Base:        {get_base_branch(git_root, branch_dir)}")
@@ -103,7 +103,7 @@ def cmd_status(_args: list[str]) -> int:
     else:
         print(f"  {STATUS_WARN} symlink not set")
 
-    orphans = [n for n, i in all_names.items() if i["context"] and not i["local"]]
+    orphans = [n for n, i in all_names.items() if i.context and not i.local]
     if orphans:
         print(f"  {STATUS_WARN} {len(orphans)} orphan contexts")
     else:

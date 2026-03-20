@@ -105,8 +105,8 @@ def test_collect_branch_info_basic(git_repo):
     sync_branch(git_repo, "main")
     info = collect_branch_info(git_repo)
     assert "main" in info
-    assert info["main"]["context"] is True
-    assert info["main"]["local"] is True
+    assert info["main"].context is True
+    assert info["main"].local is True
 
 
 def test_collect_branch_info_orphan(git_repo):
@@ -117,5 +117,5 @@ def test_collect_branch_info_orphan(git_repo):
     subprocess.run(["git", "branch", "-D", "feature/test"], cwd=git_repo, capture_output=True)
 
     info = collect_branch_info(git_repo)
-    orphans = [n for n, i in info.items() if i["context"] and not i["local"]]
+    orphans = [n for n, i in info.items() if i.context and not i.local]
     assert len(orphans) == 1

@@ -28,19 +28,13 @@ def cmd_prune(_args: list[str]) -> int:
     current = get_current_branch(git_root)
     current_sanitized = sanitize_branch_name(current) if current else None
 
-    no_local = [
-        n for n, i in all_names.items() if i["context"] and not i["local"] and i["sanitized"] != current_sanitized
-    ]
+    no_local = [n for n, i in all_names.items() if i.context and not i.local and i.sanitized != current_sanitized]
     no_remote = [
-        n
-        for n, i in all_names.items()
-        if i["context"] and i["local"] and not i["remote"] and i["sanitized"] != current_sanitized
+        n for n, i in all_names.items() if i.context and i.local and not i.remote and i.sanitized != current_sanitized
     ]
 
     deletable = [
-        n
-        for n, i in all_names.items()
-        if i["local"] and i["sanitized"] != current_sanitized and n not in ("main", "master")
+        n for n, i in all_names.items() if i.local and i.sanitized != current_sanitized and n not in ("main", "master")
     ]
 
     if not no_local and not no_remote and not deletable:
@@ -76,7 +70,7 @@ def cmd_prune(_args: list[str]) -> int:
         print(f"\nSelect {yellow('local branches')} to delete:")
         labels = []
         for n in deletable_sorted:
-            remote_status = green("remote: ✓") if all_names[n]["remote"] else red("remote: ✗")
+            remote_status = green("remote: ✓") if all_names[n].remote else red("remote: ✗")
             labels.append(f"{n}  {remote_status}")
         selected = multi_select(deletable_sorted, labels)
         to_delete = [deletable_sorted[i] for i in selected]
@@ -88,7 +82,7 @@ def cmd_prune(_args: list[str]) -> int:
     if to_archive:
         print(f"\nArchiving {len(to_archive)} context(s):\n")
         for name in sorted(to_archive):
-            sanitized = all_names[name]["sanitized"]
+            sanitized = all_names[name].sanitized
             if archive_branch(git_root, sanitized):
                 print(f"  {name}")
 
