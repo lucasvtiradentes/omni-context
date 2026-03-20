@@ -103,9 +103,8 @@ cat _branch/context.md
 ```bash
 bctx init                          # initialize + install hook
 bctx sync                          # sync context + update meta/tags
-bctx status                        # show status and health
-bctx branches list                 # list all branch contexts
-bctx branches prune                # archive orphan contexts
+bctx status                        # show status, health, and branches
+bctx prune                         # archive orphan contexts + delete branches
 bctx template                      # select template interactively
 bctx base                          # show current base branch
 bctx base origin/develop           # set base branch
@@ -160,7 +159,10 @@ _branch -> .bctx/branches/main/   # symlink to current
   "sound_file": "/path/to/custom.wav",
   "template_rules": [
     {"prefix": "feature/", "template": "feature"},
-    {"prefix": "bugfix/", "template": "bugfix"}
+    {"prefix": "fix/", "template": "fix"},
+    {"prefix": "bugfix/", "template": "fix"},
+    {"prefix": "chore/", "template": "chore"},
+    {"prefix": "refactor/", "template": "chore"}
   ]
 }
 ```
