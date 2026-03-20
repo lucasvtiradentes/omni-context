@@ -20,13 +20,9 @@ bctx status
 ### Output Example
 
 ```
-Repository:  /path/to/repo
 Branch:      feature/auth
-Symlink:     _branch -> .bctx/branches/feature-auth
-Hooks:       post-checkout, post-commit
-Templates:   _default, feature, fix
-Contexts:    5 branches
 Base:        main
+Templates:   _default, chore, feature, fix
 
 Health:
   [ok] post-checkout hook installed
@@ -36,7 +32,7 @@ Health:
   [ok] symlink valid
   [ok] no orphan contexts
 
-Branches (3):
+Branches (3 contexts, 2 archived):
 
     Branch             Context  Local  Remote
     ─────────────────  ───────  ─────  ──────
@@ -45,8 +41,6 @@ Branches (3):
   * feature/auth          ✓       ✓      ✗
     ─────────────────  ───────  ─────  ──────
     fix/old-branch        ✓       ✗      ✗
-
-Archived: 2
 ```
 
 Health indicators are color-coded: green [ok], red [!!], yellow [--].
@@ -118,12 +112,3 @@ Health indicators are color-coded: green [ok], red [!!], yellow [--].
 
 Warnings ([--]) do not affect exit code.
 
-## Global Hooks Path
-
-If `core.hooksPath` is set globally, status shows:
-
-```
-Global:      /path/to/global/hooks
-```
-
-This helps diagnose hook conflicts.

@@ -11,7 +11,7 @@ sources:
   - src/branchctx/cmd_registry.py: command registration
   - src/branchctx/core/:           core logic (sync, hooks, context_tags)
   - src/branchctx/data/:           data management (config, meta, branch_base)
-  - src/branchctx/utils/:          utilities (git, template)
+  - src/branchctx/utils/:          utilities (git, template, color, prompt)
 ---
 
 # Architecture
@@ -161,12 +161,12 @@ CLI dispatcher (`cli.py`) routes commands via `cmd_registry`:
 
 ### Git Queries (utils/git.py)
 
-| Function             | Git Command                 | Returns              |
-|----------------------|-----------------------------|----------------------|
-| git_root()           | rev-parse --show-toplevel   | repo root path       |
-| git_current_branch() | rev-parse --abbrev-ref HEAD | branch name          |
-| git_list_branches()  | branch --format=short       | list of branch names |
-| git_hooks_path()     | config core.hooksPath       | custom hooks dir     |
+| Function             | Git Command                      | Returns              |
+|----------------------|----------------------------------|----------------------|
+| git_root()           | rev-parse --show-toplevel        | repo root path       |
+| git_current_branch() | rev-parse --abbrev-ref HEAD      | branch name          |
+| git_list_branches()  | branch --format=%(refname:short) | list of branch names |
+| git_hooks_path()     | config core.hooksPath            | custom hooks dir     |
 
 ## Template System
 
@@ -208,9 +208,11 @@ cli.py
         └── commands/
               ├── init.py        → core/hooks.py, core/sync.py, data/config.py
               ├── sync.py        → core/sync.py, data/config.py, data/meta.py
-              ├── status.py      → core/hooks.py, data/config.py
-              ├── branches.py    → core/sync.py
+              ├── status.py      → commands/_branches.py, core/hooks.py, core/sync.py, data/branch_base.py, data/config.py, utils/color.py
+              ├── prune.py       → commands/_branches.py, core/hooks.py, core/sync.py, data/config.py, utils/color.py, utils/git.py, utils/prompt.py
+              ├── _branches.py   → core/sync.py, utils/color.py, utils/git.py
               ├── template.py    → core/sync.py, core/context_tags.py
+              ├── base.py        → core/hooks.py, core/sync.py, data/branch_base.py, data/config.py
               ├── on_checkout.py → core/sync.py, core/context_tags.py
               ├── on_commit.py   → core/context_tags.py, data/meta.py
               ├── completion.py  → cmd_registry.py
@@ -218,7 +220,7 @@ cli.py
 
 core/
   ├── hooks.py        → utils/git.py
-  ├── sync.py         → data/config.py, data/meta.py, data/branch_base.py, utils/template.py
+  ├── sync.py         → data/config.py, data/meta.py, utils/template.py
   └── context_tags.py → data/meta.py
 
 data/

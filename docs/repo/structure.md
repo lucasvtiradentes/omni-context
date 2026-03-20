@@ -24,12 +24,14 @@ branch-context/
 │   │   ├── init.py         Initialize repo + install hooks
 │   │   ├── sync.py         Manual sync current context
 │   │   ├── status.py       Show status and health
-│   │   ├── branches.py     List/prune contexts
+│   │   ├── prune.py        Interactive branch/context cleanup
 │   │   ├── template.py     Apply template to context
+│   │   ├── base.py         Get/set base branch
 │   │   ├── completion.py   Generate shell completions
 │   │   ├── on_checkout.py  Post-checkout hook handler
 │   │   ├── on_commit.py    Post-commit hook handler
-│   │   └── uninstall.py    Remove git hooks
+│   │   ├── uninstall.py    Remove git hooks
+│   │   └── _branches.py    Branch info helpers (internal)
 │   │
 │   ├── core/               Core business logic
 │   │   ├── hooks.py        Git hook installation/detection
@@ -43,7 +45,9 @@ branch-context/
 │   │
 │   ├── utils/              Utilities
 │   │   ├── git.py          Git subprocess wrappers
-│   │   └── template.py     Template variable resolution
+│   │   ├── template.py     Template variable resolution
+│   │   ├── color.py        Terminal color helpers
+│   │   └── prompt.py       Interactive prompt helpers
 │   │
 │   └── assets/             Bundled files
 │       ├── __init__.py     Asset loading helpers
@@ -61,6 +65,7 @@ branch-context/
 │   │   ├── test_git.py
 │   │   ├── test_branches_cmd.py
 │   │   ├── test_status_cmd.py
+│   │   ├── test_completion_cmd.py
 │   │   ├── test_context_tags.py
 │   │   └── test_template_vars.py
 │   │

@@ -7,11 +7,12 @@ related_docs:
 required_docs:
   - docs/overview.md:                    understand core concepts
 sources:
-  - src/branchctx/commands/init.py:     init command
-  - src/branchctx/commands/branches.py: branches command
-  - src/branchctx/commands/template.py: template command
-  - src/branchctx/commands/sync.py:     sync command
-  - src/branchctx/core/sync.py:         sync logic
+  - src/branchctx/commands/init.py:      init command
+  - src/branchctx/commands/_branches.py: branch info helpers
+  - src/branchctx/commands/prune.py:     prune command
+  - src/branchctx/commands/template.py:  template command
+  - src/branchctx/commands/sync.py:      sync command
+  - src/branchctx/core/sync.py:          sync logic
 ---
 
 # Branch Context Management
@@ -35,7 +36,11 @@ Creates:
 ├── templates/
 │   ├── _default/
 │   │   └── context.md
-│   └── feature/
+│   ├── chore/
+│   │   └── context.md
+│   ├── feature/
+│   │   └── context.md
+│   └── fix/
 │       └── context.md
 └── branches/
     └── main/
@@ -77,6 +82,7 @@ Templates stored in `.bctx/templates/`:
 | _default | Fallback for all branches |
 | feature  | For feature/* branches    |
 | fix      | For fix/* branches        |
+| chore    | For chore/* branches      |
 | (custom) | User-defined templates    |
 
 ### Template Rules
@@ -88,7 +94,7 @@ Configure in `.bctx/config.json`:
   "template_rules": [
     {"prefix": "feature/", "template": "feature"},
     {"prefix": "fix/", "template": "fix"},
-    {"prefix": "hotfix/", "template": "fix"}
+    {"prefix": "chore/", "template": "chore"}
   ]
 }
 ```
