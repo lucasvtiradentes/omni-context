@@ -31,16 +31,16 @@ pip install branch-ctx
 ## CLI Commands
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│  bctx init         Initialize repo + install hooks           │
-│  bctx sync         Manually sync current branch context      │
-│  bctx status       Show status, health, and branches         │
-│  bctx prune        Archive orphan contexts + delete branches │
-│  bctx base         Show or set base branch                   │
-│  bctx template     Apply template to current context         │
-│  bctx completion   Generate shell completions                │
-│  bctx uninstall    Remove git hooks                          │
-└──────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│  bctx init         Initialize and install hook                 │
+│  bctx sync         Sync context and update meta/tags           │
+│  bctx status       Show status, health, and branches           │
+│  bctx prune        Archive orphan contexts and delete branches │
+│  bctx base         Show or set base branch                     │
+│  bctx template     Apply template to current branch            │
+│  bctx completion   Generate shell completion                   │
+│  bctx uninstall    Remove hook from current repo               │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## Configuration

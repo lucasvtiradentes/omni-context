@@ -11,7 +11,7 @@ sources:
   - src/branchctx/cmd_registry.py: command registration
   - src/branchctx/core/:           core logic (sync, hooks, context_tags)
   - src/branchctx/data/:           data management (config, meta, branch_base)
-  - src/branchctx/utils/:          utilities (git, template)
+  - src/branchctx/utils/:          utilities (git, template, color, prompt)
 ---
 
 # Architecture
@@ -208,8 +208,9 @@ cli.py
         └── commands/
               ├── init.py        → core/hooks.py, core/sync.py, data/config.py
               ├── sync.py        → core/sync.py, data/config.py, data/meta.py
-              ├── status.py      → core/hooks.py, data/config.py
-              ├── branches.py    → core/sync.py
+              ├── status.py      → commands/_branches.py, core/hooks.py, core/sync.py, data/branch_base.py, data/config.py, utils/color.py
+              ├── prune.py       → commands/_branches.py, core/hooks.py, core/sync.py, data/config.py, utils/color.py, utils/git.py, utils/prompt.py
+              ├── _branches.py   → core/sync.py, utils/color.py, utils/git.py
               ├── template.py    → core/sync.py, core/context_tags.py
               ├── base.py        → core/hooks.py, core/sync.py, data/branch_base.py, data/config.py
               ├── on_checkout.py → core/sync.py, core/context_tags.py

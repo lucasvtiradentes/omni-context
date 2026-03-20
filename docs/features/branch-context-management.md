@@ -7,11 +7,12 @@ related_docs:
 required_docs:
   - docs/overview.md:                    understand core concepts
 sources:
-  - src/branchctx/commands/init.py:     init command
-  - src/branchctx/commands/branches.py: branches command
-  - src/branchctx/commands/template.py: template command
-  - src/branchctx/commands/sync.py:     sync command
-  - src/branchctx/core/sync.py:         sync logic
+  - src/branchctx/commands/init.py:      init command
+  - src/branchctx/commands/_branches.py: branch info helpers
+  - src/branchctx/commands/prune.py:     prune command
+  - src/branchctx/commands/template.py:  template command
+  - src/branchctx/commands/sync.py:      sync command
+  - src/branchctx/core/sync.py:          sync logic
 ---
 
 # Branch Context Management

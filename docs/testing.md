@@ -32,6 +32,7 @@ tests/
 │   ├── test_git.py           Git utils tests
 │   ├── test_branches_cmd.py  Branches command tests
 │   ├── test_status_cmd.py    Status command tests
+│   ├── test_completion_cmd.py Completion command tests
 │   ├── test_context_tags.py  Tag replacement tests
 │   └── test_template_vars.py Template variable tests
 │
