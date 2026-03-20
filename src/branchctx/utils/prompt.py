@@ -5,6 +5,15 @@ import sys
 from branchctx.utils.color import dim, green
 
 
+def confirm(prompt: str) -> bool:
+    try:
+        answer = input(f"{prompt} [y/N] ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return False
+    return answer in ("y", "yes")
+
+
 def _read_key() -> str:
     import termios
     import tty

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import os
 
+from branchctx.commands._branches import collect_branch_info, print_table
 from branchctx.constants import CLI_NAME, DEFAULT_SYMLINK, DEFAULT_TEMPLATE, HOOK_POST_CHECKOUT, HOOK_POST_COMMIT
 from branchctx.core.hooks import get_current_branch, get_git_root, is_hook_installed
-from branchctx.core.sync import get_branch_dir, list_branches, sanitize_branch_name
+from branchctx.core.sync import get_branch_dir, list_archived_branches
 from branchctx.data.branch_base import get_base_branch
 from branchctx.data.config import config_exists, get_templates_dir, list_templates
-from branchctx.utils.git import git_config_get, git_list_branches
+from branchctx.utils.git import git_config_get
 
 STATUS_OK = "[ok]"
 STATUS_ERROR = "[!!]"
@@ -49,8 +50,9 @@ def cmd_status(_args: list[str]) -> int:
     templates = list_templates(git_root)
     print(f"Templates:   {', '.join(templates) if templates else 'none'}")
 
-    branches = list_branches(git_root)
-    print(f"Contexts:    {len(branches)} branches")
+    all_names = collect_branch_info(git_root)
+    context_count = sum(1 for i in all_names.values() if i["context"])
+    print(f"Contexts:    {context_count} branches")
     branch_dir = get_branch_dir(git_root, branch)
     print(f"Base:        {get_base_branch(git_root, branch_dir)}")
 
@@ -102,16 +104,20 @@ def cmd_status(_args: list[str]) -> int:
         warnings.append(f"symlink not set (run '{CLI_NAME} sync')")
         print(f"  {STATUS_WARN} symlink not set")
 
-    git_branches = git_list_branches(git_root)
-    git_branches_sanitized = {sanitize_branch_name(b) for b in git_branches}
-    context_branches = set(list_branches(git_root))
-
-    orphans = context_branches - git_branches_sanitized
+    orphans = [n for n, i in all_names.items() if i["context"] and not i["local"]]
     if orphans:
         warnings.append(f"{len(orphans)} orphan contexts")
         print(f"  {STATUS_WARN} {len(orphans)} orphan contexts")
     else:
         print(f"  {STATUS_OK} no orphan contexts")
+
+    if all_names:
+        print(f"\nBranches ({len(all_names)}):\n")
+        print_table(all_names, branch)
+
+        archived = list_archived_branches(git_root)
+        if archived:
+            print(f"\nArchived: {len(archived)}")
 
     if issues:
         return 1

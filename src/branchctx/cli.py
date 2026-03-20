@@ -25,9 +25,8 @@ Options:
 
 Examples:
   {CLI_NAME} init                             # initialize + install hook
-  {CLI_NAME} status                           # show status and health
-  {CLI_NAME} branches list                    # list contexts
-  {CLI_NAME} branches prune                   # archive orphan contexts
+  {CLI_NAME} status                           # show status, health, and branches
+  {CLI_NAME} prune                            # archive orphan contexts + delete branches
   {CLI_NAME} template                         # select template interactively
   {CLI_NAME} template feature                 # apply feature template
   {CLI_NAME} completion zsh                   # generate zsh completion
