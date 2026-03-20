@@ -35,7 +35,21 @@ Health:
   [ok] _default template exists
   [ok] symlink valid
   [ok] no orphan contexts
+
+Branches (3):
+
+    Branch             Context  Local  Remote
+    ─────────────────  ───────  ─────  ──────
+    main                  ✓       ✓      ✓
+    ─────────────────  ───────  ─────  ──────
+  * feature/auth          ✓       ✓      ✗
+    ─────────────────  ───────  ─────  ──────
+    fix/old-branch        ✓       ✗      ✗
+
+Archived: 2
 ```
+
+Health indicators are color-coded: green [ok], red [!!], yellow [--].
 
 ### Status Indicators
 

@@ -44,30 +44,21 @@ Creates:
 
 ## Manage Branch Contexts
 
-### List Contexts
+### View Branches
+
+Branch status is included in `bctx status` output, showing context/local/remote status per branch grouped by availability.
+
+### Prune Contexts
 
 ```bash
-bctx branches list
+bctx prune
 ```
 
-Output:
-```
-Branch contexts (3):
-
-  * main (2 files)
-    feature-auth (3 files)
-    fix-bug-123 (2 files)
-
-Archived: 1
-```
-
-### Prune Orphan Contexts
-
-```bash
-bctx branches prune
-```
-
-Archives contexts for branches that no longer exist in git.
+Interactive multi-step workflow:
+1. Shows branch status table
+2. Asks to archive contexts without local branch
+3. Asks to archive contexts without remote branch
+4. Interactive multi-select to delete local branches
 
 ```
 ┌─────────────────┐         ┌───────────────────────────┐
