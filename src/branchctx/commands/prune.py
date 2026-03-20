@@ -37,7 +37,13 @@ def cmd_prune(_args: list[str]) -> int:
         if i["context"] and i["local"] and not i["remote"] and i["sanitized"] != current_sanitized
     ]
 
-    if not no_local and not no_remote:
+    deletable = [
+        n
+        for n, i in all_names.items()
+        if i["local"] and i["sanitized"] != current_sanitized and n not in ("main", "master")
+    ]
+
+    if not no_local and not no_remote and not deletable:
         print("Nothing to prune")
         return 0
 
@@ -63,12 +69,6 @@ def cmd_prune(_args: list[str]) -> int:
             print(f"    {n}")
         if confirm(f"\nArchive these {len(no_remote)} context(s)?"):
             to_archive.extend(no_remote)
-
-    deletable = [
-        n
-        for n, i in all_names.items()
-        if i["local"] and i["sanitized"] != current_sanitized and n not in ("main", "master")
-    ]
 
     to_delete: list[str] = []
     if deletable:

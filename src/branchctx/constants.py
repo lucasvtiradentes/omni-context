@@ -1,7 +1,6 @@
 DIST_NAME = "branch-ctx"
 PACKAGE_NAME = "branchctx"
 CLI_NAME = "bctx"
-CLI_ALIASES = ["branch-ctx", "bctx"]
 
 GIT_DIR = ".git"
 HOOK_MARKER = "# branch-ctx-managed"

@@ -64,7 +64,6 @@ def cmd_status(_args: list[str]) -> int:
     print("Health:")
 
     issues = []
-    warnings = []
 
     if is_hook_installed(git_root, HOOK_POST_CHECKOUT):
         print(f"  {STATUS_OK} {HOOK_POST_CHECKOUT} hook installed")
@@ -101,12 +100,10 @@ def cmd_status(_args: list[str]) -> int:
         issues.append("symlink path exists but is not a symlink")
         print(f"  {STATUS_ERROR} {DEFAULT_SYMLINK} is not a symlink")
     else:
-        warnings.append(f"symlink not set (run '{CLI_NAME} sync')")
         print(f"  {STATUS_WARN} symlink not set")
 
     orphans = [n for n, i in all_names.items() if i["context"] and not i["local"]]
     if orphans:
-        warnings.append(f"{len(orphans)} orphan contexts")
         print(f"  {STATUS_WARN} {len(orphans)} orphan contexts")
     else:
         print(f"  {STATUS_OK} no orphan contexts")
