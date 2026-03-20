@@ -24,15 +24,17 @@ def collect_branch_info(git_root: str) -> dict[str, BranchInfo]:
 
     local_to_sanitized = {b: sanitize_branch_name(b) for b in local_branches}
     sanitized_to_local = {v: k for k, v in local_to_sanitized.items()}
+    sanitized_to_remote = {sanitize_branch_name(b): b for b in remote_branches}
 
     all_names: dict[str, BranchInfo] = {}
 
     for ctx in context_dirs:
-        original = sanitized_to_local.get(ctx, ctx)
+        original = sanitized_to_local.get(ctx) or sanitized_to_remote.get(ctx) or ctx
+        has_remote = original in remote_branches
         all_names[original] = BranchInfo(
             context=True,
             local=ctx in sanitized_to_local,
-            remote=original in remote_branches,
+            remote=has_remote,
             sanitized=ctx,
         )
 

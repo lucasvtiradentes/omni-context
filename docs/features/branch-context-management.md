@@ -56,9 +56,8 @@ bctx prune
 
 Interactive multi-step workflow:
 1. Shows branch status table
-2. Asks to archive contexts without local branch
-3. Asks to archive contexts without remote branch
-4. Interactive multi-select to delete local branches
+2. Interactive multi-select to delete local branches
+3. Asks to archive orphan contexts (includes any just-deleted)
 
 ```
 ┌─────────────────┐         ┌───────────────────────────┐
