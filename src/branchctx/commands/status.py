@@ -9,7 +9,6 @@ from branchctx.core.sync import get_branch_dir, list_archived_branches
 from branchctx.data.branch_base import get_base_branch
 from branchctx.data.config import config_exists, get_templates_dir, list_templates
 from branchctx.utils.color import green, red, yellow
-from branchctx.utils.git import git_config_get
 
 STATUS_OK = green("[ok]")
 STATUS_ERROR = red("[!!]")
@@ -34,35 +33,17 @@ def cmd_status(_args: list[str]) -> int:
     if os.path.islink(symlink_path):
         symlink_target = os.readlink(symlink_path)
 
-    print(f"Repository:  {git_root}")
     print(f"Branch:      {branch}")
-    if symlink_target:
-        print(f"Symlink:     {DEFAULT_SYMLINK} -> {symlink_target}")
-    else:
-        print(f"Symlink:     {DEFAULT_SYMLINK} (not set)")
+    branch_dir = get_branch_dir(git_root, branch)
+    print(f"Base:        {get_base_branch(git_root, branch_dir)}")
+
+    templates = list_templates(git_root)
+    print(f"Templates:   {', '.join(sorted(templates)) if templates else 'none'}")
 
     has_checkout_hook = is_hook_installed(git_root, HOOK_POST_CHECKOUT)
     has_commit_hook = is_hook_installed(git_root, HOOK_POST_COMMIT)
 
-    hooks = []
-    if has_checkout_hook:
-        hooks.append(HOOK_POST_CHECKOUT)
-    if has_commit_hook:
-        hooks.append(HOOK_POST_COMMIT)
-    print(f"Hooks:       {', '.join(hooks) if hooks else 'none'}")
-
-    templates = list_templates(git_root)
-    print(f"Templates:   {', '.join(templates) if templates else 'none'}")
-
     all_names = collect_branch_info(git_root)
-    context_count = sum(1 for i in all_names.values() if i.context)
-    print(f"Contexts:    {context_count} branches")
-    branch_dir = get_branch_dir(git_root, branch)
-    print(f"Base:        {get_base_branch(git_root, branch_dir)}")
-
-    global_hooks = git_config_get("core.hooksPath", scope="global")
-    if global_hooks:
-        print(f"Global:      {global_hooks}")
 
     print()
     print("Health:")
@@ -113,12 +94,12 @@ def cmd_status(_args: list[str]) -> int:
         print(f"  {STATUS_OK} no orphan contexts")
 
     if all_names:
-        print(f"\nBranches ({len(all_names)}):\n")
-        print_table(all_names, branch)
-
+        context_count = sum(1 for i in all_names.values() if i.context)
         archived = list_archived_branches(git_root)
-        if archived:
-            print(f"\nArchived: {len(archived)}")
+        archived_count = len(archived) if archived else 0
+
+        print(f"\nBranches ({context_count} contexts, {archived_count} archived):\n")
+        print_table(all_names, branch)
 
     if issues:
         return 1
