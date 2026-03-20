@@ -92,10 +92,7 @@ def cmd_prune(_args: list[str]) -> int:
             if git_delete_branch(git_root, name):
                 print(f"  {name}")
             else:
-                if git_delete_branch(git_root, name, force=True):
-                    print(f"  {name} (force)")
-                else:
-                    print(f"  {name} (failed)")
+                print(f"  {name} (not fully merged, skipped)")
 
     print(f"\nDone. Use '{CLI_NAME} status' to see current contexts.")
     return 0

@@ -38,7 +38,7 @@ def collect_branch_info(git_root: str) -> dict[str, BranchInfo]:
 
     for branch in local_branches:
         if branch not in all_names:
-            sanitized = sanitize_branch_name(branch)
+            sanitized = local_to_sanitized[branch]
             if sanitized not in context_dirs:
                 all_names[branch] = BranchInfo(
                     context=False,

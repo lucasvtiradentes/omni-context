@@ -14,9 +14,16 @@ def confirm(prompt: str) -> bool:
     return answer in ("y", "yes")
 
 
+def _is_interactive() -> bool:
+    return hasattr(sys.stdin, "isatty") and sys.stdin.isatty()
+
+
 def _read_key() -> str:
-    import termios
-    import tty
+    try:
+        import termios
+        import tty
+    except ImportError:
+        return input() or "enter"
 
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
@@ -45,9 +52,40 @@ def _read_key() -> str:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 
+def _multi_select_fallback(items: list[str], labels: list[str] | None = None) -> list[int]:
+    display = labels if labels else items
+    print()
+    for i, label in enumerate(display):
+        print(f"  {i + 1}. {label}")
+    print()
+    try:
+        raw = input("Enter numbers to select (comma-separated, empty to skip): ").strip()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return []
+    if not raw:
+        return []
+    selected = []
+    for part in raw.split(","):
+        part = part.strip()
+        if part.isdigit():
+            idx = int(part) - 1
+            if 0 <= idx < len(items):
+                selected.append(idx)
+    return sorted(set(selected))
+
+
 def multi_select(items: list[str], labels: list[str] | None = None) -> list[int]:
     if not items:
         return []
+
+    if not _is_interactive():
+        return _multi_select_fallback(items, labels)
+
+    try:
+        import termios  # noqa: F401
+    except ImportError:
+        return _multi_select_fallback(items, labels)
 
     display = labels if labels else items
     selected: set[int] = set()
@@ -94,6 +132,8 @@ def multi_select(items: list[str], labels: list[str] | None = None) -> list[int]
             elif key in ("ctrl-c", "esc"):
                 render()
                 return []
+            else:
+                continue
             render()
     except (EOFError, KeyboardInterrupt):
         return []

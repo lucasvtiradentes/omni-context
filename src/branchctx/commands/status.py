@@ -41,10 +41,13 @@ def cmd_status(_args: list[str]) -> int:
     else:
         print(f"Symlink:     {DEFAULT_SYMLINK} (not set)")
 
+    has_checkout_hook = is_hook_installed(git_root, HOOK_POST_CHECKOUT)
+    has_commit_hook = is_hook_installed(git_root, HOOK_POST_COMMIT)
+
     hooks = []
-    if is_hook_installed(git_root, HOOK_POST_CHECKOUT):
+    if has_checkout_hook:
         hooks.append(HOOK_POST_CHECKOUT)
-    if is_hook_installed(git_root, HOOK_POST_COMMIT):
+    if has_commit_hook:
         hooks.append(HOOK_POST_COMMIT)
     print(f"Hooks:       {', '.join(hooks) if hooks else 'none'}")
 
@@ -66,13 +69,13 @@ def cmd_status(_args: list[str]) -> int:
 
     issues = []
 
-    if is_hook_installed(git_root, HOOK_POST_CHECKOUT):
+    if has_checkout_hook:
         print(f"  {STATUS_OK} {HOOK_POST_CHECKOUT} hook installed")
     else:
         issues.append(f"{HOOK_POST_CHECKOUT} hook not installed")
         print(f"  {STATUS_ERROR} {HOOK_POST_CHECKOUT} hook not installed")
 
-    if is_hook_installed(git_root, HOOK_POST_COMMIT):
+    if has_commit_hook:
         print(f"  {STATUS_OK} {HOOK_POST_COMMIT} hook installed")
     else:
         issues.append(f"{HOOK_POST_COMMIT} hook not installed")
