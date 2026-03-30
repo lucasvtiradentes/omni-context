@@ -31,7 +31,9 @@ def cmd_prune(_args: list[str]) -> int:
     no_local = [n for n, i in all_names.items() if i.context and not i.local and i.sanitized != current_sanitized]
 
     deletable = [
-        n for n, i in all_names.items() if i.local and i.sanitized != current_sanitized and n not in ("main", "master")
+        n
+        for n, i in all_names.items()
+        if i.local and not i.remote and i.sanitized != current_sanitized and n not in ("main", "master")
     ]
 
     if not no_local and not deletable:
