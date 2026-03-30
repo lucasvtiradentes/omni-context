@@ -91,7 +91,7 @@ def test_prune_archives_orphans(git_repo, capsys, monkeypatch):
     git_checkout(git_repo, "main")
     subprocess.run(["git", "branch", "-D", "feature/old"], cwd=git_repo, capture_output=True)
 
-    inputs = iter(["y", "n"])
+    inputs = iter(["1"])
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
     result = cmd_prune([])
