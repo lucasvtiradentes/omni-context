@@ -35,7 +35,8 @@ def cmd_on_checkout(args: list[str]) -> int:
 
     update_context_tags(git_root, context_dir, branch_key, base_branch)
 
-    status = "new" if result["create_result"] != "exists" else "synced"
+    cr = result["create_result"]
+    status = "restored" if cr == "restored_from_archive" else "new" if cr != "exists" else "synced"
     print(f"Branch: {old_branch} -> {new_branch} ({status})")
 
     return 0

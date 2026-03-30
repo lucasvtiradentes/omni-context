@@ -7,13 +7,16 @@ import pytest
 from branchctx.assets import copy_init_templates
 from branchctx.constants import DEFAULT_SYMLINK, GIT_DIR
 from branchctx.core.sync import (
+    archive_branch,
     branch_context_exists,
     create_branch_context,
     get_branch_dir,
     get_branch_rel_path,
+    list_archived_branches,
     list_branches,
     reset_branch_context,
     sync_branch,
+    unarchive_branch,
     update_symlink,
 )
 from branchctx.data.config import Config, TemplateRule, get_branches_dir, get_config_dir, get_templates_dir
@@ -254,3 +257,58 @@ def test_reset_branch_context_with_specific_template(workspace):
     with open(os.path.join(branch_dir, "context.md")) as f:
         content = f.read()
     assert "## Description" in content
+
+
+def test_archive_and_unarchive_branch(workspace):
+    create_branch_context(workspace, "feature/test")
+    branch_dir = get_branch_dir(workspace, "feature/test")
+
+    with open(os.path.join(branch_dir, "context.md"), "w") as f:
+        f.write("MY CUSTOM CONTENT")
+
+    assert archive_branch(workspace, "feature-test")
+    assert not os.path.exists(branch_dir)
+    assert "feature-test" in list_archived_branches(workspace)
+    assert "feature-test" not in list_branches(workspace)
+
+    assert unarchive_branch(workspace, "feature-test")
+    assert os.path.exists(branch_dir)
+    assert "feature-test" in list_branches(workspace)
+    assert "feature-test" not in list_archived_branches(workspace)
+
+    with open(os.path.join(branch_dir, "context.md")) as f:
+        assert f.read() == "MY CUSTOM CONTENT"
+
+
+def test_create_branch_context_restores_from_archive(workspace):
+    create_branch_context(workspace, "feature/old")
+    branch_dir = get_branch_dir(workspace, "feature/old")
+
+    with open(os.path.join(branch_dir, "context.md"), "w") as f:
+        f.write("ARCHIVED CONTENT")
+
+    archive_branch(workspace, "feature-old")
+    assert not os.path.exists(branch_dir)
+
+    result = create_branch_context(workspace, "feature/old")
+    assert result == "restored_from_archive"
+    assert os.path.exists(branch_dir)
+
+    with open(os.path.join(branch_dir, "context.md")) as f:
+        assert f.read() == "ARCHIVED CONTENT"
+
+
+def test_sync_branch_restores_from_archive(workspace):
+    sync_branch(workspace, "feature/archived")
+    branch_dir = get_branch_dir(workspace, "feature/archived")
+
+    with open(os.path.join(branch_dir, "context.md"), "w") as f:
+        f.write("RESTORE ME")
+
+    archive_branch(workspace, "feature-archived")
+
+    result = sync_branch(workspace, "feature/archived")
+    assert result["create_result"] == "restored_from_archive"
+
+    with open(os.path.join(branch_dir, "context.md")) as f:
+        assert f.read() == "RESTORE ME"
