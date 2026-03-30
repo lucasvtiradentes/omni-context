@@ -196,6 +196,19 @@ def archive_branch_meta(workspace: str, branch_key: str):
     _save_meta(_get_archived_meta_path(workspace), archived)
 
 
+def unarchive_branch_meta(workspace: str, branch_key: str):
+    archived = load_archived_meta(workspace)
+    if branch_key not in archived:
+        return
+
+    branch_data = archived.pop(branch_key)
+    _save_meta(_get_archived_meta_path(workspace), archived)
+
+    meta = load_branch_meta(workspace)
+    meta[branch_key] = branch_data
+    _save_meta(_get_meta_path(workspace), meta)
+
+
 def delete_branch_meta(workspace: str, branch_key: str):
     meta = load_branch_meta(workspace)
     if branch_key in meta:

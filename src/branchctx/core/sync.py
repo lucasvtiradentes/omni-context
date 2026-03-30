@@ -18,7 +18,7 @@ from branchctx.constants import (
     TEMPLATE_FILE_EXTENSIONS,
 )
 from branchctx.data.config import Config, get_branches_dir, get_default_template, get_template_dir
-from branchctx.data.meta import archive_branch_meta, create_branch_meta
+from branchctx.data.meta import archive_branch_meta, create_branch_meta, unarchive_branch_meta
 from branchctx.utils.template import get_template_variables, render_template_content
 
 
@@ -110,12 +110,15 @@ def _copy_template_to_branch(template_dir: str, branch_dir: str, branch: str):
 
 def create_branch_context(
     workspace: str, branch: str, template: str | None = None
-) -> Literal["exists", "created_from_template", "created_empty"]:
+) -> Literal["exists", "restored_from_archive", "created_from_template", "created_empty"]:
     branch_dir = get_branch_dir(workspace, branch)
     branch_key = sanitize_branch_name(branch)
 
     if os.path.exists(branch_dir):
         return "exists"
+
+    if unarchive_branch(workspace, branch_key):
+        return "restored_from_archive"
 
     os.makedirs(branch_dir, exist_ok=True)
     create_branch_meta(workspace, branch_key, branch)
@@ -219,4 +222,18 @@ def archive_branch(workspace: str, branch_name: str) -> bool:
     os.makedirs(archived_dir, exist_ok=True)
     shutil.move(src, dst)
     archive_branch_meta(workspace, branch_name)
+    return True
+
+
+def unarchive_branch(workspace: str, branch_name: str) -> bool:
+    branches_dir = get_branches_dir(workspace)
+    archived_dir = get_archived_dir(workspace)
+    src = os.path.join(archived_dir, branch_name)
+    dst = os.path.join(branches_dir, branch_name)
+
+    if not os.path.exists(src):
+        return False
+
+    shutil.move(src, dst)
+    unarchive_branch_meta(workspace, branch_name)
     return True

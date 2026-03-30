@@ -11,7 +11,7 @@ from branchctx.core.sync import (
 from branchctx.data.config import config_exists
 from branchctx.utils.color import green, red, yellow
 from branchctx.utils.git import git_delete_branch
-from branchctx.utils.prompt import confirm, multi_select
+from branchctx.utils.prompt import multi_select
 
 
 def cmd_prune(_args: list[str]) -> int:
@@ -31,7 +31,9 @@ def cmd_prune(_args: list[str]) -> int:
     no_local = [n for n, i in all_names.items() if i.context and not i.local and i.sanitized != current_sanitized]
 
     deletable = [
-        n for n, i in all_names.items() if i.local and i.sanitized != current_sanitized and n not in ("main", "master")
+        n
+        for n, i in all_names.items()
+        if i.local and not i.remote and i.sanitized != current_sanitized and n not in ("main", "master")
     ]
 
     if not no_local and not deletable:
@@ -60,11 +62,11 @@ def cmd_prune(_args: list[str]) -> int:
     if to_delete:
         print(f"\nDeleting {len(to_delete)} local branch(es):\n")
         for name in sorted(to_delete):
-            if git_delete_branch(git_root, name):
+            if git_delete_branch(git_root, name, force=True):
                 print(f"  {name}")
                 deleted.append(name)
             else:
-                print(f"  {name} (not fully merged, skipped)")
+                print(f"  {name} ({red('failed')})")
 
     for name in deleted:
         info = all_names[name]
@@ -73,11 +75,10 @@ def cmd_prune(_args: list[str]) -> int:
 
     to_archive: list[str] = []
     if no_local:
-        print(f"\n{len(no_local)} context(s) without {yellow('local branch')}:")
-        for n in sorted(no_local):
-            print(f"    {n}")
-        if confirm(f"\nArchive these {len(no_local)} context(s)?"):
-            to_archive.extend(no_local)
+        no_local_sorted = sorted(no_local)
+        print(f"\nSelect {yellow('orphan contexts')} to archive:")
+        selected_archive = multi_select(no_local_sorted)
+        to_archive = [no_local_sorted[i] for i in selected_archive]
 
     if not to_archive and not deleted:
         print("\nNothing to do.")

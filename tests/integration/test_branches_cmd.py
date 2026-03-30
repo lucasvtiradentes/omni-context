@@ -91,7 +91,7 @@ def test_prune_archives_orphans(git_repo, capsys, monkeypatch):
     git_checkout(git_repo, "main")
     subprocess.run(["git", "branch", "-D", "feature/old"], cwd=git_repo, capture_output=True)
 
-    inputs = iter(["y", "n"])
+    inputs = iter(["1"])
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
     result = cmd_prune([])
@@ -99,6 +99,38 @@ def test_prune_archives_orphans(git_repo, capsys, monkeypatch):
     captured = capsys.readouterr()
     assert "Archiving" in captured.out
     assert "feature" in captured.out
+
+
+def test_prune_excludes_branches_with_remote(git_repo, capsys, monkeypatch):
+    sync_branch(git_repo, "main")
+
+    with tempfile.TemporaryDirectory() as bare_dir:
+        subprocess.run(["git", "init", "--bare"], cwd=bare_dir, capture_output=True)
+        subprocess.run(["git", "remote", "add", "origin", bare_dir], cwd=git_repo, capture_output=True)
+        subprocess.run(["git", "push", "-u", "origin", "main"], cwd=git_repo, capture_output=True)
+
+        git_checkout(git_repo, "feature/synced", create=True)
+        sync_branch(git_repo, "feature/synced")
+        tmp_file = os.path.join(git_repo, "tmp.txt")
+        with open(tmp_file, "w") as f:
+            f.write("x")
+        git_add(git_repo, "tmp.txt")
+        git_commit(git_repo, "tmp")
+        subprocess.run(["git", "push", "-u", "origin", "feature/synced"], cwd=git_repo, capture_output=True)
+
+        git_checkout(git_repo, "main")
+        git_checkout(git_repo, "feature/local-only", create=True)
+        sync_branch(git_repo, "feature/local-only")
+        git_checkout(git_repo, "main")
+
+        inputs = iter([""])
+        monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+        result = cmd_prune([])
+        assert result == 0
+        captured = capsys.readouterr()
+        assert "feature/local-only" in captured.out
+        assert "feature/synced" not in captured.out.split("Select")[1]
 
 
 def test_collect_branch_info_basic(git_repo):

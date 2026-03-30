@@ -75,6 +75,15 @@ def _multi_select_fallback(items: list[str], labels: list[str] | None = None) ->
     return sorted(set(selected))
 
 
+def _get_terminal_height() -> int:
+    try:
+        import shutil
+
+        return shutil.get_terminal_size().lines
+    except Exception:
+        return 24
+
+
 def multi_select(items: list[str], labels: list[str] | None = None) -> list[int]:
     if not items:
         return []
@@ -92,21 +101,45 @@ def multi_select(items: list[str], labels: list[str] | None = None) -> list[int]
     cursor = 0
     total = len(items)
 
+    max_visible = min(total, _get_terminal_height() - 4)
+    viewport_start = 0
+
     hint = dim("(↑↓ move, space select, a toggle all, enter confirm)")
 
+    def _viewport_range() -> range:
+        return range(viewport_start, min(viewport_start + max_visible, total))
+
+    def _adjust_viewport():
+        nonlocal viewport_start
+        if cursor < viewport_start:
+            viewport_start = cursor
+        elif cursor >= viewport_start + max_visible:
+            viewport_start = cursor - max_visible + 1
+
     def render():
-        sys.stdout.write(f"\r\x1b[{total + 1}A")
+        vr = _viewport_range()
+        lines = len(vr) + 1
+        sys.stdout.write(f"\r\x1b[{lines}A")
         sys.stdout.write(f"\x1b[K{hint}\n")
-        for i, label in enumerate(display):
+        for i in vr:
             check = green("✓") if i in selected else " "
             arrow = "›" if i == cursor else " "
-            sys.stdout.write(f"\x1b[K  {arrow} [{check}] {label}\n")
+            prefix = ""
+            if total > max_visible:
+                if i == vr[0] and viewport_start > 0:
+                    prefix = "↑ "
+                elif i == vr[-1] and viewport_start + max_visible < total:
+                    prefix = "↓ "
+                else:
+                    prefix = "  "
+            sys.stdout.write(f"\x1b[K  {arrow} [{check}] {prefix}{display[i]}\n")
         sys.stdout.flush()
 
     sys.stdout.write(f"{hint}\n")
-    for i, label in enumerate(display):
+    for i in _viewport_range():
         arrow = "›" if i == cursor else " "
-        sys.stdout.write(f"  {arrow} [ ] {label}\n")
+        prefix = "  " if total > max_visible else ""
+        sys.stdout.write(f"  {arrow} [ ] {prefix}{display[i]}\n")
     sys.stdout.flush()
 
     try:
@@ -114,8 +147,10 @@ def multi_select(items: list[str], labels: list[str] | None = None) -> list[int]
             key = _read_key()
             if key == "up" and cursor > 0:
                 cursor -= 1
+                _adjust_viewport()
             elif key == "down" and cursor < total - 1:
                 cursor += 1
+                _adjust_viewport()
             elif key == "space":
                 if cursor in selected:
                     selected.discard(cursor)
