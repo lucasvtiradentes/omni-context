@@ -1,3 +1,18 @@
+## 0.3.2 (2026-03-30)
+
+### Features
+
+- Automatically restore archived contexts when checking out a branch that was previously archived, instead of creating a fresh context.
+
+### Bug Fixes
+
+- Fix prune offering branches with a remote for deletion when they should be excluded.
+
+### Misc
+
+- Improve prune UX: add viewport scrolling to multi-select for large lists, force-delete selected branches, and replace yes/no archive confirmation with individual multi-select.
+
+
 ## 0.3.1 (2026-03-20)
 
 ### Bug Fixes
