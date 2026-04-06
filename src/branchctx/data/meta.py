@@ -194,13 +194,13 @@ def create_branch_meta(workspace: str, branch_key: str, branch: str):
         _save_meta(_get_meta_path(workspace), meta)
 
 
-def update_branch_meta(workspace: str, branch_key: str, base_branch: str):
+def update_branch_meta(workspace: str, branch_key: str, base_branch: str, include_description: bool = False):
     meta = load_branch_meta(workspace)
     if branch_key not in meta:
         return
 
     now = datetime.now().isoformat()
-    commits = _get_commits_since_base(workspace, base_branch)
+    commits = _get_commits_since_base(workspace, base_branch, include_description)
     changed_files = _get_changed_files(workspace, base_branch)
     last_commit = _get_last_commit(workspace)
 
