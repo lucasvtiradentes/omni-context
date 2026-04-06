@@ -7,6 +7,7 @@ from branchctx.core.sync import sanitize_branch_name, sync_branch
 from branchctx.data.config import Config, get_branches_dir, get_template_dir
 from branchctx.data.meta import (
     _get_changed_files,
+    _get_commits_since_base,
     archive_branch_meta,
     create_branch_meta,
     delete_branch_meta,
@@ -15,6 +16,8 @@ from branchctx.data.meta import (
     load_branch_meta,
     update_branch_meta,
 )
+import subprocess
+
 from branchctx.utils.git import git_add, git_checkout, git_commit, git_config, git_init
 
 
@@ -219,3 +222,57 @@ def test_get_changed_files_rename_alignment(git_repo):
 
     paren_positions = [line.index("(") for line in lines]
     assert len(set(paren_positions)) == 1
+
+
+def test_get_commits_since_base_with_description_body(git_repo):
+    git_checkout(git_repo, "feature/desc-test", create=True)
+
+    test_file = os.path.join(git_repo, "file.py")
+    with open(test_file, "w") as f:
+        f.write("x = 1")
+    git_add(git_repo)
+    subprocess.run(
+        ["git", "commit", "-m", "feat: add file", "-m", "This is the body"],
+        cwd=git_repo, capture_output=True, text=True, check=True,
+    )
+
+    result = _get_commits_since_base(git_repo, "main", include_description=True)
+    lines = result.strip().split("\n")
+    assert len(lines) == 1
+    assert "feat: add file" in lines[0]
+    assert "- This is the body" in lines[0]
+
+
+def test_get_commits_since_base_with_description_no_body(git_repo):
+    git_checkout(git_repo, "feature/desc-nobody", create=True)
+
+    test_file = os.path.join(git_repo, "file.py")
+    with open(test_file, "w") as f:
+        f.write("x = 1")
+    git_add(git_repo)
+    git_commit(git_repo, "feat: no body commit")
+
+    result = _get_commits_since_base(git_repo, "main", include_description=True)
+    lines = result.strip().split("\n")
+    assert len(lines) == 1
+    assert "feat: no body commit" in lines[0]
+    assert " - " not in lines[0]
+
+
+def test_get_commits_since_base_with_description_multiline_body(git_repo):
+    git_checkout(git_repo, "feature/desc-multi", create=True)
+
+    test_file = os.path.join(git_repo, "file.py")
+    with open(test_file, "w") as f:
+        f.write("x = 1")
+    git_add(git_repo)
+    subprocess.run(
+        ["git", "commit", "-m", "feat: multi", "-m", "Line one\nLine two\nLine three"],
+        cwd=git_repo, capture_output=True, text=True, check=True,
+    )
+
+    result = _get_commits_since_base(git_repo, "main", include_description=True)
+    lines = result.strip().split("\n")
+    assert len(lines) == 1
+    assert "feat: multi" in lines[0]
+    assert "Line one Line two Line three" in lines[0]
