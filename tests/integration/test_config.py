@@ -97,3 +97,28 @@ def test_config_get_template_for_branch():
     assert config.get_template_for_branch("bugfix/123") == "bugfix"
     assert config.get_template_for_branch("main") == DEFAULT_TEMPLATE
     assert config.get_template_for_branch("develop") == DEFAULT_TEMPLATE
+
+
+def test_config_commit_description_default():
+    config = Config()
+    assert config.commit_description is False
+
+
+def test_config_commit_description_save_and_load(workspace):
+    config = Config(commit_description=True)
+    config.save(workspace)
+
+    loaded = Config.load(workspace)
+    assert loaded.commit_description is True
+
+
+def test_config_commit_description_backward_compatible_load(workspace):
+    import json
+
+    config_path = os.path.join(workspace, CONFIG_DIR, "config.json")
+    data = {"sound": True, "template_rules": []}
+    with open(config_path, "w") as f:
+        json.dump(data, f)
+
+    loaded = Config.load(workspace)
+    assert loaded.commit_description is False
