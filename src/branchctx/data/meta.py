@@ -51,16 +51,45 @@ def _get_last_commit(workspace: str) -> dict | None:
     return None
 
 
-def _get_commits_since_base(workspace: str, base_branch: str) -> str:
+def _get_commits_since_base(
+    workspace: str, base_branch: str, include_description: bool = False
+) -> str:
     try:
+        if not include_description:
+            result = subprocess.run(
+                ["git", "log", f"{base_branch}..HEAD", "--oneline"],
+                cwd=workspace,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            return result.stdout.strip()
+
         result = subprocess.run(
-            ["git", "log", f"{base_branch}..HEAD", "--oneline"],
+            ["git", "log", f"{base_branch}..HEAD", "--format=%h %s%x00%b%x00"],
             cwd=workspace,
             capture_output=True,
             text=True,
             check=True,
         )
-        return result.stdout.strip()
+        raw = result.stdout.strip()
+        if not raw:
+            return ""
+
+        lines = []
+        for entry in raw.split("\x00\x00"):
+            entry = entry.strip()
+            if not entry:
+                continue
+            parts = entry.split("\x00", 1)
+            subject = parts[0].strip()
+            body = parts[1].strip() if len(parts) > 1 else ""
+            if body:
+                body = " ".join(body.split())
+                lines.append(f"{subject} - {body}")
+            else:
+                lines.append(subject)
+        return "\n".join(lines)
     except subprocess.CalledProcessError:
         return ""
 
