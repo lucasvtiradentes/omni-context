@@ -1,4 +1,5 @@
 import os
+import subprocess
 import tempfile
 
 import pytest
@@ -16,7 +17,6 @@ from branchctx.data.meta import (
     load_branch_meta,
     update_branch_meta,
 )
-import subprocess
 
 from branchctx.utils.git import git_add, git_checkout, git_commit, git_config, git_init
 

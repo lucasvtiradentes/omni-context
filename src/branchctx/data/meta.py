@@ -66,7 +66,7 @@ def _get_commits_since_base(
             return result.stdout.strip()
 
         result = subprocess.run(
-            ["git", "log", f"{base_branch}..HEAD", "--format=%h %s%x00%b%x00"],
+            ["git", "log", f"{base_branch}..HEAD", "--format=%h %s%x1f%b%x1e"],
             cwd=workspace,
             capture_output=True,
             text=True,
@@ -77,11 +77,11 @@ def _get_commits_since_base(
             return ""
 
         lines = []
-        for entry in raw.split("\x00\x00"):
+        for entry in raw.split("\x1e"):
             entry = entry.strip()
             if not entry:
                 continue
-            parts = entry.split("\x00", 1)
+            parts = entry.split("\x1f", 1)
             subject = parts[0].strip()
             body = parts[1].strip() if len(parts) > 1 else ""
             if body:
