@@ -41,6 +41,7 @@ def get_default_template() -> str:
 class Config:
     sound: bool = field(default_factory=lambda: _get_defaults()["sound"])
     sound_file: str | None = None
+    commit_description: bool = field(default_factory=lambda: _get_defaults()["commit_description"])
     template_rules: list[TemplateRule] = field(default_factory=_get_default_template_rules)
 
     @classmethod
@@ -65,6 +66,7 @@ class Config:
         return cls(
             sound=data.get("sound", defaults["sound"]),
             sound_file=data.get("sound_file"),
+            commit_description=data.get("commit_description", defaults["commit_description"]),
             template_rules=template_rules,
         )
 
@@ -73,6 +75,7 @@ class Config:
 
         data = {
             "sound": self.sound,
+            "commit_description": self.commit_description,
             "template_rules": [{"prefix": r.prefix, "template": r.template} for r in self.template_rules],
         }
 
