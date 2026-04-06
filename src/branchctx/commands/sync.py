@@ -5,7 +5,7 @@ from branchctx.core.context_tags import update_context_tags
 from branchctx.core.hooks import get_current_branch, get_git_root
 from branchctx.core.sync import sanitize_branch_name, sync_branch
 from branchctx.data.branch_base import get_base_branch
-from branchctx.data.config import config_exists
+from branchctx.data.config import Config, config_exists
 from branchctx.data.meta import update_branch_meta
 
 
@@ -30,7 +30,8 @@ def cmd_sync(_args: list[str]) -> int:
     context_dir = result["branch_dir"]
     base_branch = get_base_branch(git_root, context_dir)
 
-    update_branch_meta(git_root, branch_key, base_branch)
+    config = Config.load(git_root)
+    update_branch_meta(git_root, branch_key, base_branch, include_description=config.commit_description)
 
     updates = update_context_tags(git_root, context_dir, branch_key, base_branch)
 
